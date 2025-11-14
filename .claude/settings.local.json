@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install @react-navigation/native @react-navigation/bottom-tabs @supabase/supabase-js react-native-url-polyfill expo-linking expo-constants)",
+      "Bash(dir:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
