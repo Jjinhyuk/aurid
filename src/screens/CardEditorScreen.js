@@ -1,0 +1,393 @@
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+
+export default function CardEditorScreen({ navigation }) {
+  const [selectedTemplate, setSelectedTemplate] = useState('basic');
+  const [selectedColor, setSelectedColor] = useState('#007AFF');
+  const [visibleFields, setVisibleFields] = useState({
+    name: true,
+    headline: true,
+    email: true,
+    phone: true,
+    links: true,
+    qr: true,
+  });
+
+  const templates = [
+    { id: 'basic', name: '기본형' },
+    { id: 'modern', name: '모던' },
+    { id: 'minimal', name: '미니멀' },
+  ];
+
+  const colors = [
+    { id: 'blue', hex: '#007AFF', name: '블루' },
+    { id: 'black', hex: '#000000', name: '블랙' },
+    { id: 'green', hex: '#34C759', name: '그린' },
+    { id: 'purple', hex: '#AF52DE', name: '퍼플' },
+    { id: 'red', hex: '#FF3B30', name: '레드' },
+  ];
+
+  const toggleField = (field) => {
+    setVisibleFields(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* 헤더 */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>명함 꾸미기</Text>
+        <TouchableOpacity style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>저장</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={styles.content}>
+        {/* 실시간 미리보기 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📱 실시간 미리보기</Text>
+          <View style={styles.previewCard}>
+            <View style={styles.miniCard}>
+              <View style={styles.miniAvatar} />
+              <View style={styles.miniLine} />
+              <View style={[styles.miniLine, { width: 60 }]} />
+            </View>
+          </View>
+          <Text style={styles.previewNote}>변경사항이 실시간으로 반영됩니다</Text>
+        </View>
+
+        {/* 템플릿 선택 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎨 템플릿 선택</Text>
+          <View style={styles.templateGrid}>
+            {templates.map(template => (
+              <TouchableOpacity
+                key={template.id}
+                style={[
+                  styles.templateButton,
+                  selectedTemplate === template.id && styles.templateButtonActive
+                ]}
+                onPress={() => setSelectedTemplate(template.id)}
+              >
+                <Text style={[
+                  styles.templateText,
+                  selectedTemplate === template.id && styles.templateTextActive
+                ]}>
+                  {template.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* 색상 테마 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🌈 색상 테마</Text>
+          <View style={styles.colorGrid}>
+            {colors.map(color => (
+              <TouchableOpacity
+                key={color.id}
+                style={[
+                  styles.colorButton,
+                  selectedColor === color.hex && styles.colorButtonActive
+                ]}
+                onPress={() => setSelectedColor(color.hex)}
+              >
+                <View style={[styles.colorCircle, { backgroundColor: color.hex }]} />
+                <Text style={styles.colorName}>{color.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* 표시할 정보 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📝 표시할 정보</Text>
+          <View style={styles.fieldList}>
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('name')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.name ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.name ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>이름</Text>
+              </View>
+              <Text style={styles.fieldRequired}>필수</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('headline')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.headline ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.headline ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>직함/한줄소개</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('email')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.email ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.email ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>이메일</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('phone')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.phone ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.phone ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>전화번호</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('links')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.links ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.links ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>링크 3개</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.fieldItem}
+              onPress={() => toggleField('qr')}
+            >
+              <View style={styles.fieldLeft}>
+                <Ionicons
+                  name={visibleFields.qr ? 'checkbox' : 'square-outline'}
+                  size={24}
+                  color={visibleFields.qr ? '#007AFF' : '#999'}
+                />
+                <Text style={styles.fieldLabel}>QR 코드</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 로고/아바타 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🖼️ 로고/아바타</Text>
+          <TouchableOpacity style={styles.uploadButton}>
+            <Ionicons name="cloud-upload-outline" size={24} color="#007AFF" />
+            <Text style={styles.uploadText}>이미지 업로드</Text>
+            <Text style={styles.uploadSubtext}>JPG, PNG (최대 2MB)</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  saveButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+  },
+  section: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#333',
+  },
+  previewCard: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 15,
+    padding: 30,
+    alignItems: 'center',
+  },
+  miniCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    width: 120,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  miniAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#e0e0e0',
+    marginBottom: 10,
+  },
+  miniLine: {
+    width: 80,
+    height: 4,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 2,
+    marginBottom: 6,
+  },
+  previewNote: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  templateGrid: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  templateButton: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  templateButtonActive: {
+    backgroundColor: '#E3F2FD',
+    borderColor: '#007AFF',
+  },
+  templateText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  templateTextActive: {
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  colorButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    gap: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorButtonActive: {
+    backgroundColor: '#E3F2FD',
+    borderColor: '#007AFF',
+  },
+  colorCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+  colorName: {
+    fontSize: 14,
+    color: '#333',
+  },
+  fieldList: {
+    gap: 12,
+  },
+  fieldItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+  },
+  fieldLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  fieldLabel: {
+    fontSize: 15,
+    color: '#333',
+  },
+  fieldRequired: {
+    fontSize: 12,
+    color: '#FF3B30',
+    fontWeight: '600',
+  },
+  uploadButton: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 15,
+    padding: 30,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  uploadText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+    marginTop: 10,
+  },
+  uploadSubtext: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 5,
+  },
+});
