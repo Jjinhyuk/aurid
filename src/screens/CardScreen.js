@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import colors from '../config/colors';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,7 +13,7 @@ export default function CardScreen() {
         style={styles.customizeButton}
         onPress={() => navigation.navigate('CardEditor')}
       >
-        <Ionicons name="color-wand-outline" size={20} color="#fff" />
+        <Ionicons name="color-wand-outline" size={20} color={colors.surface} />
         <Text style={styles.customizeButtonText}>꾸미기</Text>
       </TouchableOpacity>
 
@@ -39,15 +40,15 @@ export default function CardScreen() {
           {/* 연락 정보 */}
           <View style={styles.contactInfo}>
             <View style={styles.infoRow}>
-              <Ionicons name="mail-outline" size={16} color="#666" />
+              <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.infoText}>abc@gmail.com</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="call-outline" size={16} color="#666" />
+              <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
               <Text style={styles.infoText}>010-1234-5678</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="logo-github" size={16} color="#666" />
+              <Ionicons name="logo-github" size={16} color={colors.textSecondary} />
               <Text style={styles.infoText}>github.com/username</Text>
             </View>
           </View>
@@ -71,7 +72,7 @@ export default function CardScreen() {
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>색상 테마</Text>
           <View style={styles.colorPreview}>
-            <View style={[styles.colorCircle, { backgroundColor: '#007AFF' }]} />
+            <View style={[styles.colorCircle, { backgroundColor: colors.primaryEmphasis }]} />
             <Text style={styles.infoValue}>블루</Text>
           </View>
         </View>
@@ -87,20 +88,20 @@ export default function CardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   customizeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     margin: 20,
     padding: 15,
     borderRadius: 10,
     gap: 8,
   },
   customizeButtonText: {
-    color: '#fff',
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 30,
     width: '100%',
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
@@ -136,18 +137,18 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 5,
   },
   category: {
     fontSize: 16,
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
     marginBottom: 10,
   },
   headline: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginBottom: 20,
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
   divider: {
     width: '100%',
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     marginVertical: 15,
   },
   contactInfo: {
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   qrSection: {
     alignItems: 'center',
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   qrPlaceholder: {
     width: 100,
     height: 100,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceElevated,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -187,15 +188,15 @@ const styles = StyleSheet.create({
   },
   qrText: {
     fontSize: 18,
-    color: '#999',
+    color: colors.textMuted,
     fontWeight: '600',
   },
   qrLabel: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textMuted,
   },
   infoSection: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     margin: 20,
     marginTop: 0,
     padding: 20,
@@ -209,11 +210,11 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   infoValue: {
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
     fontWeight: '600',
   },
   colorPreview: {

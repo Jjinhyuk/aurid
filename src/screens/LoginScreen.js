@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import colors from '../config/colors';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.content}>
         {/* 로고 영역 */}
         <View style={styles.logoSection}>
-          <Ionicons name="card-outline" size={80} color="#007AFF" />
+          <Ionicons name="card-outline" size={80} color={colors.primaryEmphasis} />
           <Text style={styles.appName}>Aurid Pass</Text>
           <Text style={styles.tagline}>스캔 한 번, 신뢰까지.</Text>
         </View>
@@ -51,7 +52,7 @@ export default function LoginScreen({ navigation }) {
         {/* 로그인 폼 */}
         <View style={styles.formSection}>
           <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#999" />
+            <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
             <TextInput
               style={styles.input}
               placeholder="이메일"
@@ -64,7 +65,7 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#999" />
+            <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
             <TextInput
               style={styles.input}
               placeholder="비밀번호"
@@ -103,7 +104,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   content: {
     flex: 1,
@@ -117,12 +118,12 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginTop: 20,
   },
   tagline: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 8,
   },
   formSection: {
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -140,17 +141,17 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
   },
   loginButtonText: {
-    color: '#fff',
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -161,11 +162,11 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   signupLink: {
     fontSize: 14,
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
   },
 });

@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import colors from '../config/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -158,7 +159,7 @@ export default function OnboardingScreen() {
                 <Ionicons
                   name={category.icon}
                   size={32}
-                  color={selectedCategories.includes(category.id) ? '#007AFF' : '#666'}
+                  color={selectedCategories.includes(category.id) ? colors.primaryEmphasis : colors.textSecondary}
                 />
                 <Text style={[
                   styles.categoryName,
@@ -168,7 +169,7 @@ export default function OnboardingScreen() {
                 </Text>
                 {selectedCategories.includes(category.id) && (
                   <View style={styles.checkMark}>
-                    <Ionicons name="checkmark" size={16} color="#fff" />
+                    <Ionicons name="checkmark" size={16} color={colors.surface} />
                   </View>
                 )}
               </TouchableOpacity>
@@ -193,7 +194,7 @@ export default function OnboardingScreen() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.surface} />
           ) : (
             <Text style={styles.nextButtonText}>
               {step === 2 ? '완료' : '다음'}
@@ -208,7 +209,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   content: {
     padding: 30,
@@ -224,19 +225,19 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
   },
   progressDotActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
   },
   progressLine: {
     width: 80,
     height: 2,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     marginHorizontal: 10,
   },
   progressLineActive: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
   },
   stepContent: {
     marginBottom: 40,
@@ -244,12 +245,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 24,
     marginBottom: 30,
   },
@@ -262,32 +263,32 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 15,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   handleInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingLeft: 15,
   },
   handlePrefix: {
     fontSize: 16,
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
     marginRight: 5,
   },
   hint: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textMuted,
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: '47%',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 15,
     padding: 20,
     alignItems: 'center',
@@ -306,23 +307,23 @@ const styles = StyleSheet.create({
   },
   categoryCardActive: {
     backgroundColor: '#E3F2FD',
-    borderColor: '#007AFF',
+    borderColor: colors.primaryEmphasis,
   },
   categoryName: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 10,
     fontWeight: '500',
   },
   categoryNameActive: {
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
   },
   checkMark: {
     position: 'absolute',
     top: 10,
     right: 10,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -344,11 +345,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
   },
   nextButton: {
     flex: 2,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -356,6 +357,6 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: colors.surface,
   },
 });

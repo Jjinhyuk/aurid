@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from 'react-native';
+import colors from '../config/colors';
 
 export default function PassScreen() {
   return (
@@ -21,7 +22,7 @@ export default function PassScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   title: {
     fontSize: 24,
@@ -37,26 +38,26 @@ const styles = StyleSheet.create({
   qrContainer: {
     width: 200,
     height: 200,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 20,
     borderRadius: 10,
   },
   qrPlaceholder: {
-    color: '#999',
+    color: colors.textMuted,
     fontSize: 16,
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 20,
     marginBottom: 5,
   },
   link: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
   },
   code: {
     fontSize: 24,
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   },
   info: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 20,
   },
 });

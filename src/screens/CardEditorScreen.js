@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import colors from '../config/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 export default function CardEditorScreen({ navigation }) {
   const [selectedTemplate, setSelectedTemplate] = useState('basic');
-  const [selectedColor, setSelectedColor] = useState('#007AFF');
+  const [selectedColor, setSelectedColor] = useState(colors.primaryEmphasis);
   const [visibleFields, setVisibleFields] = useState({
     name: true,
     headline: true,
@@ -20,12 +21,12 @@ export default function CardEditorScreen({ navigation }) {
     { id: 'minimal', name: '미니멀' },
   ];
 
-  const colors = [
-    { id: 'blue', hex: '#007AFF', name: '블루' },
+  const colorOptions = [
+    { id: 'blue', hex: colors.primaryEmphasis, name: '블루' },
     { id: 'black', hex: '#000000', name: '블랙' },
     { id: 'green', hex: '#34C759', name: '그린' },
     { id: 'purple', hex: '#AF52DE', name: '퍼플' },
-    { id: 'red', hex: '#FF3B30', name: '레드' },
+    { id: 'red', hex: colors.error, name: '레드' },
   ];
 
   const toggleField = (field) => {
@@ -40,7 +41,7 @@ export default function CardEditorScreen({ navigation }) {
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>명함 꾸미기</Text>
         <TouchableOpacity style={styles.saveButton}>
@@ -90,7 +91,7 @@ export default function CardEditorScreen({ navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🌈 색상 테마</Text>
           <View style={styles.colorGrid}>
-            {colors.map(color => (
+            {colorOptions.map(color => (
               <TouchableOpacity
                 key={color.id}
                 style={[
@@ -118,7 +119,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.name ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.name ? '#007AFF' : '#999'}
+                  color={visibleFields.name ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>이름</Text>
               </View>
@@ -133,7 +134,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.headline ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.headline ? '#007AFF' : '#999'}
+                  color={visibleFields.headline ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>직함/한줄소개</Text>
               </View>
@@ -147,7 +148,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.email ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.email ? '#007AFF' : '#999'}
+                  color={visibleFields.email ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>이메일</Text>
               </View>
@@ -161,7 +162,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.phone ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.phone ? '#007AFF' : '#999'}
+                  color={visibleFields.phone ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>전화번호</Text>
               </View>
@@ -175,7 +176,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.links ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.links ? '#007AFF' : '#999'}
+                  color={visibleFields.links ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>링크 3개</Text>
               </View>
@@ -189,7 +190,7 @@ export default function CardEditorScreen({ navigation }) {
                 <Ionicons
                   name={visibleFields.qr ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={visibleFields.qr ? '#007AFF' : '#999'}
+                  color={visibleFields.qr ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.fieldLabel}>QR 코드</Text>
               </View>
@@ -201,7 +202,7 @@ export default function CardEditorScreen({ navigation }) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🖼️ 로고/아바타</Text>
           <TouchableOpacity style={styles.uploadButton}>
-            <Ionicons name="cloud-upload-outline" size={24} color="#007AFF" />
+            <Ionicons name="cloud-upload-outline" size={24} color={colors.primaryEmphasis} />
             <Text style={styles.uploadText}>이미지 업로드</Text>
             <Text style={styles.uploadSubtext}>JPG, PNG (최대 2MB)</Text>
           </TouchableOpacity>
@@ -214,7 +215,7 @@ export default function CardEditorScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: 'row',
@@ -222,21 +223,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
   },
   saveButton: {
     paddingHorizontal: 15,
     paddingVertical: 8,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     borderRadius: 8,
   },
   saveButtonText: {
-    color: '#fff',
+    color: colors.surface,
     fontWeight: '600',
   },
   content: {
@@ -245,22 +246,22 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.surfaceElevated,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 15,
-    color: '#333',
+    color: colors.text,
   },
   previewCard: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 15,
     padding: 30,
     alignItems: 'center',
   },
   miniCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderRadius: 10,
     padding: 20,
     width: 120,
@@ -275,19 +276,19 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     marginBottom: 10,
   },
   miniLine: {
     width: 80,
     height: 4,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.border,
     borderRadius: 2,
     marginBottom: 6,
   },
   previewNote: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textMuted,
     marginTop: 10,
     textAlign: 'center',
   },
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
   templateButton: {
     flex: 1,
     padding: 15,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 2,
@@ -306,15 +307,15 @@ const styles = StyleSheet.create({
   },
   templateButtonActive: {
     backgroundColor: '#E3F2FD',
-    borderColor: '#007AFF',
+    borderColor: colors.primaryEmphasis,
   },
   templateText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   templateTextActive: {
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
   },
   colorGrid: {
@@ -326,7 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 10,
     gap: 8,
     borderWidth: 2,
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
   },
   colorButtonActive: {
     backgroundColor: '#E3F2FD',
-    borderColor: '#007AFF',
+    borderColor: colors.primaryEmphasis,
   },
   colorCircle: {
     width: 24,
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
   },
   colorName: {
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
   },
   fieldList: {
     gap: 12,
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 10,
   },
   fieldLeft: {
@@ -363,31 +364,31 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
   },
   fieldRequired: {
     fontSize: 12,
-    color: '#FF3B30',
+    color: colors.error,
     fontWeight: '600',
   },
   uploadButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 15,
     padding: 30,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
     borderStyle: 'dashed',
   },
   uploadText: {
     fontSize: 16,
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
     marginTop: 10,
   },
   uploadSubtext: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textMuted,
     marginTop: 5,
   },
 });

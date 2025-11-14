@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import colors from '../config/colors';
 
 export default function ProfileScreen() {
   return (
@@ -35,7 +36,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   title: {
     fontSize: 24,
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   },
   handle: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   placeholder: {
-    color: '#999',
+    color: colors.textMuted,
     fontSize: 14,
   },
 });

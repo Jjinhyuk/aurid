@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import colors from '../config/colors';
 
 export default function DiscoverScreen() {
   return (
@@ -21,7 +22,7 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   title: {
     fontSize: 24,
@@ -45,13 +46,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   categoryItem: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.surfaceElevated,
     padding: 10,
     borderRadius: 8,
     fontSize: 14,
   },
   placeholder: {
-    color: '#666',
+    color: colors.textSecondary,
     fontSize: 14,
   },
 });

@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
+import colors from '../config/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -70,7 +71,7 @@ export default function SignupScreen({ navigation }) {
           {/* 헤더 */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="#333" />
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>회원가입</Text>
             <View style={{ width: 24 }} />
@@ -87,7 +88,7 @@ export default function SignupScreen({ navigation }) {
           {/* 회원가입 폼 */}
           <View style={styles.formSection}>
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={20} color="#999" />
+              <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
               <TextInput
                 style={styles.input}
                 placeholder="이메일"
@@ -100,7 +101,7 @@ export default function SignupScreen({ navigation }) {
             </View>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" />
+              <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
               <TextInput
                 style={styles.input}
                 placeholder="비밀번호 (8자 이상)"
@@ -112,7 +113,7 @@ export default function SignupScreen({ navigation }) {
             </View>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#999" />
+              <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
               <TextInput
                 style={styles.input}
                 placeholder="비밀번호 확인"
@@ -132,7 +133,7 @@ export default function SignupScreen({ navigation }) {
                 <Ionicons
                   name={agreedToTerms ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={agreedToTerms ? '#007AFF' : '#999'}
+                  color={agreedToTerms ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.checkboxText}>
                   <Text style={styles.required}>(필수)</Text> 이용약관 동의
@@ -146,7 +147,7 @@ export default function SignupScreen({ navigation }) {
                 <Ionicons
                   name={agreedToPrivacy ? 'checkbox' : 'square-outline'}
                   size={24}
-                  color={agreedToPrivacy ? '#007AFF' : '#999'}
+                  color={agreedToPrivacy ? colors.primaryEmphasis : colors.textMuted}
                 />
                 <Text style={styles.checkboxText}>
                   <Text style={styles.required}>(필수)</Text> 개인정보처리방침 동의
@@ -160,7 +161,7 @@ export default function SignupScreen({ navigation }) {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={colors.surface} />
               ) : (
                 <Text style={styles.signupButtonText}>회원가입</Text>
               )}
@@ -183,7 +184,7 @@ export default function SignupScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   scrollContent: {
     flexGrow: 1,
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
   },
   description: {
     marginBottom: 30,
@@ -209,12 +210,12 @@ const styles = StyleSheet.create({
   descriptionTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 10,
   },
   descriptionText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 24,
   },
   formSection: {
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 15,
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   termsSection: {
     marginTop: 10,
@@ -245,21 +246,21 @@ const styles = StyleSheet.create({
   },
   checkboxText: {
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
   },
   required: {
-    color: '#FF3B30',
+    color: colors.error,
     fontWeight: '600',
   },
   signupButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primaryEmphasis,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 10,
   },
   signupButtonText: {
-    color: '#fff',
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -270,11 +271,11 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   loginLink: {
     fontSize: 14,
-    color: '#007AFF',
+    color: colors.primaryEmphasis,
     fontWeight: '600',
   },
 });

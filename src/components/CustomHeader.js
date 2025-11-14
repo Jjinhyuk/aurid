@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import colors from '../config/colors';
 
 export default function CustomHeader() {
   const navigation = useNavigation();
@@ -9,7 +10,7 @@ export default function CustomHeader() {
   return (
     <View style={styles.header}>
       <View style={styles.leftSection}>
-        <Ionicons name="card-outline" size={24} color="#007AFF" />
+        <Ionicons name="card-outline" size={24} color={colors.primaryEmphasis} />
         <Text style={styles.title}>Aurid Pass</Text>
       </View>
 
@@ -17,7 +18,7 @@ export default function CustomHeader() {
         style={styles.messageButton}
         onPress={() => navigation.navigate('Inbox')}
       >
-        <Ionicons name="mail-outline" size={24} color="#333" />
+        <Ionicons name="mail-outline" size={24} color={colors.text} />
         {unreadCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -35,9 +36,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: colors.border,
   },
   leftSection: {
     flexDirection: 'row',
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 8,
-    color: '#333',
+    color: colors.text,
   },
   messageButton: {
     position: 'relative',
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: '#FF3B30',
+    backgroundColor: colors.error,
     borderRadius: 10,
     minWidth: 20,
     height: 20,
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: '#fff',
+    color: colors.textInverse,
     fontSize: 12,
     fontWeight: 'bold',
   },
