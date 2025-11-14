@@ -1,5 +1,5 @@
-import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
 import PassScreen from '../screens/PassScreen';
@@ -23,7 +23,9 @@ export default function TabNavigator() {
         component={HomeScreen}
         options={{
           title: '피드',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>📰</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="newspaper-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -31,7 +33,9 @@ export default function TabNavigator() {
         component={DiscoverScreen}
         options={{
           title: '발견',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🔍</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -39,7 +43,9 @@ export default function TabNavigator() {
         component={PassScreen}
         options={{
           title: '패스',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>📇</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="card-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -47,7 +53,9 @@ export default function TabNavigator() {
         component={InboxScreen}
         options={{
           title: '받은편지함',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>✉️</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="mail-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -55,7 +63,9 @@ export default function TabNavigator() {
         component={ProfileScreen}
         options={{
           title: '프로필',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👤</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>
