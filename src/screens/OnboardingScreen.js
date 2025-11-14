@@ -84,13 +84,8 @@ export default function OnboardingScreen() {
       categories: selectedCategories,
       tags: [],
       visibility_json: { default: 'public' },
+      short_code: shortCode,
     });
-
-    // 카드도 함께 생성
-    if (!error) {
-      // TODO: cards 테이블에도 INSERT (나중에 구현)
-      // 지금은 createProfile만 성공하면 메인으로 이동
-    }
 
     setLoading(false);
 
@@ -98,6 +93,7 @@ export default function OnboardingScreen() {
       Alert.alert('오류', error.message);
     }
     // 성공 시 AuthContext가 자동으로 메인 화면으로 전환
+    // cards 테이블 생성은 나중에 구현 (현재는 profile만 생성)
   };
 
   return (

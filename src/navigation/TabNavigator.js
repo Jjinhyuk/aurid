@@ -2,9 +2,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
+import CardScreen from '../screens/CardScreen';
 import PassScreen from '../screens/PassScreen';
-import InboxScreen from '../screens/InboxScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import VerificationScreen from '../screens/VerificationScreen';
+import CustomHeader from '../components/CustomHeader';
+import colors from '../config/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,9 +15,15 @@ export default function TabNavigator() {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#8E8E93',
+        headerShown: true,
+        header: () => <CustomHeader />,
+        tabBarActiveTintColor: colors.primaryEmphasis,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          borderTopWidth: 1,
+        },
       }}
     >
       <Tab.Screen
@@ -39,32 +47,32 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
+        name="Card"
+        component={CardScreen}
+        options={{
+          title: '명함',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="business-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Pass"
         component={PassScreen}
         options={{
           title: '패스',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="card-outline" size={size} color={color} />
+            <Ionicons name="qr-code-outline" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="Inbox"
-        component={InboxScreen}
+        name="Verification"
+        component={VerificationScreen}
         options={{
-          title: '받은편지함',
+          title: '검증',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="mail-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          title: '프로필',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="shield-checkmark-outline" size={size} color={color} />
           ),
         }}
       />

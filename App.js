@@ -4,8 +4,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import AuthNavigator from './src/navigation/AuthNavigator';
-import TabNavigator from './src/navigation/TabNavigator';
+import MainNavigator from './src/navigation/MainNavigator';
 import OnboardingScreen from './src/screens/OnboardingScreen';
+import colors from './src/config/colors';
 
 function RootNavigator() {
   const { user, profile, loading } = useAuth();
@@ -13,8 +14,8 @@ function RootNavigator() {
   // 로딩 중
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-        <ActivityIndicator size="large" color="#007AFF" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.surface }}>
+        <ActivityIndicator size="large" color={colors.primaryEmphasis} />
       </View>
     );
   }
@@ -30,7 +31,7 @@ function RootNavigator() {
   }
 
   // 로그인 됨 + 프로필 있음 → 메인 앱
-  return <TabNavigator />;
+  return <MainNavigator />;
 }
 
 export default function App() {

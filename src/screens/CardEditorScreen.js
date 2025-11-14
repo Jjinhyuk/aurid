@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import colors from '../config/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
 export default function CardEditorScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [selectedTemplate, setSelectedTemplate] = useState('basic');
   const [selectedColor, setSelectedColor] = useState(colors.primaryEmphasis);
   const [visibleFields, setVisibleFields] = useState({
@@ -39,7 +41,7 @@ export default function CardEditorScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {/* 헤더 */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
@@ -221,7 +223,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
