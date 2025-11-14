@@ -14,12 +14,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
 const CATEGORIES = [
-  { id: 'creator', name: 'Creator', icon: 'videocam-outline' },
-  { id: 'developer', name: 'Developer', icon: 'code-slash-outline' },
-  { id: 'designer', name: 'Designer', icon: 'color-palette-outline' },
-  { id: 'local_biz', name: 'Local Biz', icon: 'storefront-outline' },
-  { id: 'student', name: 'Student', icon: 'school-outline' },
-  { id: 'freelancer', name: 'Freelancer', icon: 'briefcase-outline' },
+  { id: 'creator', name: '크리에이터', icon: 'videocam-outline' },
+  { id: 'developer', name: '개발자', icon: 'code-slash-outline' },
+  { id: 'designer', name: '디자이너', icon: 'color-palette-outline' },
+  { id: 'freelancer', name: '프리랜서', icon: 'briefcase-outline' },
+  { id: 'student', name: '학생', icon: 'school-outline' },
+  { id: 'local_biz', name: '자영업자', icon: 'storefront-outline' },
+  { id: 'artist', name: '예술가', icon: 'brush-outline' },
+  { id: 'writer', name: '작가', icon: 'create-outline' },
+  { id: 'photographer', name: '사진작가', icon: 'camera-outline' },
+  { id: 'marketer', name: '마케터', icon: 'megaphone-outline' },
+  { id: 'educator', name: '교육자', icon: 'book-outline' },
+  { id: 'researcher', name: '연구원', icon: 'flask-outline' },
+  { id: 'engineer', name: '엔지니어', icon: 'construct-outline' },
+  { id: 'medical', name: '의료인', icon: 'medical-outline' },
+  { id: 'farmer', name: '농업인', icon: 'leaf-outline' },
+  { id: 'other', name: '기타', icon: 'ellipsis-horizontal-outline' },
 ];
 
 export default function OnboardingScreen() {
@@ -175,6 +185,10 @@ export default function OnboardingScreen() {
               </TouchableOpacity>
             ))}
           </View>
+
+          <Text style={styles.categoryHint}>
+            💡 더 자세한 직업(용접공, 배관공, 의사 등)은 가입 후 프로필에서 추가로 설정할 수 있습니다.
+          </Text>
         </View>
       )}
 
@@ -294,6 +308,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+    marginBottom: 20,
+  },
+  categoryHint: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    textAlign: 'center',
+    backgroundColor: colors.primaryLight,
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
   },
   categoryCard: {
     width: '47%',
