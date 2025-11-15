@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   categories TEXT[] DEFAULT '{}',
   tags TEXT[] DEFAULT '{}',
   visibility_json JSONB DEFAULT '{}',
+  card_settings JSONB DEFAULT '{"template": "basic", "color": "#2563EB", "visibleFields": {"name": true, "headline": true, "email": true, "phone": true, "links": true, "qr": true}}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -88,6 +89,7 @@ CREATE TABLE IF NOT EXISTS verifications (
 CREATE INDEX IF NOT EXISTS idx_profiles_handle ON profiles(handle);
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_profiles_short_code ON profiles(short_code);
+CREATE INDEX IF NOT EXISTS idx_profiles_card_settings ON profiles USING GIN (card_settings);
 CREATE INDEX IF NOT EXISTS idx_claims_profile_id ON claims(profile_id);
 CREATE INDEX IF NOT EXISTS idx_updates_profile_id ON updates(profile_id);
 CREATE INDEX IF NOT EXISTS idx_updates_created_at ON updates(created_at DESC);

@@ -15,10 +15,10 @@
 
 ### 🎯 핵심 가치 제안
 
-1. **통합된 신원**: 온라인·오프라인 활동을 하나의 검증 가능한 프로필로 통합
-2. **즉각적인 공유**: QR·링크·시크릿 코드로 언제 어디서나 내 프로필 공유
-3. **증명 가능한 신뢰**: 플랫폼 연동, 문서 해시, 추천으로 실존과 성과를 검증
-4. **프라이버시 우선**: 공개 범위를 세밀하게 제어, 기본은 비공개
+1. **검증된 신원**: 실명, 생년월일, 성별 기반 진정성 있는 프로필
+2. **즉각적인 공유**: QR·링크·시크릿 코드로 언제 어디서나 디지털 명함 교환
+3. **증명 가능한 신뢰**: 이메일/핸드폰 인증, 플랫폼 연동으로 신원 검증
+4. **프라이버시 우선**: 공개 범위를 세밀하게 제어, 사용자가 선택
 5. **발견 가능성**: 카테고리·태그 기반 검색으로 새로운 연결 창출
 
 ---
@@ -31,18 +31,18 @@
 - 신뢰성 검증 불가
 - 분실 시 연결 단절
 
-### 기존 링크 트리 서비스의 한계
+### 기존 디지털 명함 서비스의 한계
 - 단순 링크 나열, 맥락 없음
 - 검증 기능 없음
-- 오프라인 공유 어려움
-- 업데이트 알림 없음
+- 실명 기반이 아니어서 신뢰도 낮음
+- 명함 교환 기능 부재
 
 ### Aurid Pass의 차별점
-- **검증 레이어**: 실존·플랫폼·문서 3단계 검증
-- **동적 업데이트 피드**: 프로필 변경 시 자동 공유
-- **카테고리 발견**: Creator, Developer, Designer 등 직군별 탐색
-- **유연한 공개 범위**: Public/Lite/Request 프리셋
-- **오프라인 우선**: QR·NFC·Wallet Pass 지원 (예정)
+- **실명 기반 검증**: 주민번호 앞 7자리로 생년월일·성별 확인
+- **뱃지 시스템**: 이메일/핸드폰 인증, 플랫폼 연동으로 신뢰도 표시
+- **명함 교환 플로우**: QR 스캔 → 프로필 보기 → 명함 저장
+- **유연한 공개 설정**: 사용자가 원하는 정보만 공개
+- **디지털 패스**: Apple Wallet 스타일의 신원 인증 도구
 
 ---
 
@@ -65,23 +65,23 @@
 
 ### Frontend
 - **React Native (Expo)**: iOS/Android/Web 크로스 플랫폼
-- **React Navigation**: 5탭 네비게이션 (Bottom Tabs)
+- **React Navigation**: 5탭 네비게이션 (Bottom Tabs + Stack)
 - **Expo Vector Icons**: 일관된 UI 아이콘
+- **react-native-qrcode-svg**: QR 코드 생성
 
 ### Backend
 - **Supabase**
   - **Auth**: 이메일/전화번호 인증
   - **Database**: PostgreSQL with RLS (Row Level Security)
-  - **Storage**: 프로필 이미지, 문서 해시
+  - **Storage**: 프로필 이미지, 증명 사진, 포트폴리오
   - **Realtime**: 피드 업데이트 구독 (예정)
 
 ### 보안 설계 원칙
-1. **기본 비공개, 공개는 Opt-in**: 모든 정보는 기본적으로 비공개
-2. **Row Level Security (RLS)**: 데이터베이스 레벨에서 접근 제어
-3. **민감 정보 분리**: PII는 private 스키마, 서비스 롤만 접근
-4. **동의 로그 저장**: 모든 공개/철회 동의 기록
-5. **레이트 리밋**: 연락 요청, API 호출 제한
-6. **미성년자 보호**: 연령대만 노출, 더 제한적인 기본 설정
+1. **실명 기반 신뢰**: 회원가입 시 실명, 생년월일, 성별 입력
+2. **정보 수정 제한**: 실명, 생년월일, 성별은 운영자만 수정 가능
+3. **인증 일치 확인**: 이메일/핸드폰 인증 시 실명 일치 여부 확인
+4. **Row Level Security**: 데이터베이스 레벨에서 접근 제어
+5. **뱃지 시스템**: 인증 완료 시 뱃지 부여로 신뢰도 표시
 
 ---
 
@@ -91,19 +91,35 @@
 aurid/
 ├── src/
 │   ├── config/
-│   │   └── supabase.js          # Supabase 클라이언트 설정
+│   │   ├── supabase.js          # Supabase 클라이언트 설정
+│   │   └── colors.js            # 컬러 시스템
+│   ├── contexts/
+│   │   └── AuthContext.js       # 인증 컨텍스트
 │   ├── navigation/
+│   │   ├── MainNavigator.js     # Stack Navigator (모달 화면)
 │   │   └── TabNavigator.js      # 하단 5탭 네비게이션
 │   ├── screens/
 │   │   ├── HomeScreen.js        # 피드 (메인)
 │   │   ├── DiscoverScreen.js    # 카테고리 탐색
-│   │   ├── PassScreen.js        # QR/링크/코드
-│   │   ├── InboxScreen.js       # 연락요청/알림
-│   │   └── ProfileScreen.js     # 프로필 편집
-│   └── components/              # 재사용 컴포넌트
+│   │   ├── CardScreen.js        # 명함 (내 명함/보관 명함)
+│   │   ├── MyCardScreen.js      # 내 명함 상세
+│   │   ├── SavedCardsScreen.js  # 보관 명함 리스트
+│   │   ├── CardDetailScreen.js  # 명함 상세보기
+│   │   ├── CardEditorScreen.js  # 명함 꾸미기
+│   │   ├── PassScreen.js        # 디지털 패스 (QR/시크릿 코드)
+│   │   ├── VerificationScreen.js # 더보기 (프로필/설정)
+│   │   ├── EditProfileScreen.js # 프로필 편집
+│   │   ├── InboxScreen.js       # 받은편지함
+│   │   ├── LoginScreen.js       # 로그인
+│   │   └── RegisterScreen.js    # 회원가입
+│   └── components/
+│       └── CustomHeader.js      # 커스텀 헤더
 ├── App.js                        # 앱 진입점
 ├── .env                          # 환경 변수 (git 제외)
-└── supabase-schema.sql          # DB 스키마 & RLS
+├── supabase-schema.sql          # 초기 DB 스키마
+├── supabase-migration-001.sql   # 프로필 설정 추가
+├── supabase-migration-002.sql   # 실명 및 인증 필드 추가 (예정)
+└── supabase-migration-003.sql   # 명함 설정 추가
 ```
 
 ---
@@ -112,30 +128,136 @@ aurid/
 
 ### 1. Home (피드)
 - 검증된 프로필 업데이트 스트림
-- 신규 가입, 프로필 변경, 새 Claim 추가 등
+- 신규 가입, 프로필 변경, 새로운 활동 등
 - "검증된 업데이트 우선" 필터
 
 ### 2. Discover (발견)
 - 카테고리: Creator, Developer, Designer, Local Biz, Student 등
-- 필터: 지역, 스킬/태그, 가용상태, 검증레벨
+- 필터: 지역, 스킬/태그, 검증레벨
 - 카드형 결과 리스트
 
-### 3. Pass (내 패스) ⭐️ 핵심
-- **QR 코드**: 크게 표시, 스캔 즉시 프로필 공유
-- **짧은 링크**: aurid.app/handle (복사 가능)
-- **시크릿 코드**: 6~8자 영숫자 (오프라인 입력용)
-- 스캔 카운트, 최근 스캔 힌트
+### 3. Card (명함) ⭐️ 핵심
+- **내 명함**:
+  - 명함 미리보기 (QR 코드 포함)
+  - QR 터치 → 공유 모달 (대형 QR, 공유하기, 링크 복사)
+  - 스캔 횟수 통계
+  - 명함 꾸미기 버튼
+- **보관 명함**:
+  - 카테고리별 필터 (전체, 크리에이터, 개발자 등)
+  - 받은 명함 리스트
+  - 명함 클릭 → 상세보기 (연락처, 소개, 삭제)
 
-### 4. Inbox (받은편지함)
-- 연락 요청: 보낸 사람, 목적, 메모
-- 액션: 수락(확장 공개) / 거절 / 차단
-- 시스템 알림: 패스 스캔됨, 프로필 승인됨, 추천 받음
+### 4. Pass (패스) ⭐️ 디지털 신원증
+- **디지털 패스 카드** (Apple Wallet 스타일):
+  - AURID PASS 로고 헤더
+  - 대형 QR 코드 (200px)
+  - 밝기 조절 버튼 (스캔 환경 대응)
+  - 사용자 이름 + 핸들
+  - PASS ID (고유 식별자)
+- **빠른 인증**:
+  - 시크릿 코드 (6~8자, 복사 가능)
+- **사용 통계**:
+  - QR 스캔 횟수
+  - 인증 완료 횟수
+  - 마지막 사용 시간
+- **패스 관리**:
+  - 보안 설정
+  - 사용 이력
+  - 패스 정보
 
-### 5. Profile (프로필)
-- 카테고리별 섹션 (토글형)
-- Claim 카드: work/edu/award/portfolio
-- 공개 범위: Public / Lite / Request
-- 검증: 실존(전화/이메일) / 플랫폼(OAuth) / 문서(Hash)
+### 5. 더보기 (프로필 → 변경 예정)
+**현재 상태**: VerificationScreen (임시)
+
+**변경 예정 구조**:
+- **상단**: 기본 정보
+  - 이름
+  - 뱃지 (인증 상태 표시)
+  - 직업
+- **메인 메뉴** (가로 배열 라운드 버튼):
+  - 프로필
+  - 포트폴리오
+  - 증명 사진
+  - 설정
+- **구분선**
+- **하단 메뉴**:
+  - 공지사항
+  - 이벤트
+  - 고객센터
+  - 앱 정보
+
+---
+
+## 🔐 회원가입 및 인증 시스템
+
+### 필수 입력 정보 (회원가입)
+1. **실명** (수정 불가)
+2. **주민번호** 앞 6자리 + 뒤 1자리 (생년월일 + 성별 확인용, 수정 불가)
+3. **성별** (수정 불가)
+4. **핸드폰 번호** (수정 가능)
+5. **이메일** (수정 가능)
+6. **직업** (복수 선택 가능, 수정 가능)
+
+### 정보 수정 권한
+- **영구 잠금**: 이름, 생년월일, 성별
+  - 사용자는 수정 불가
+  - 운영자만 수정 가능 (고객센터 요청 시)
+- **사용자 수정 가능**: 핸드폰번호, 이메일, 직업, 한줄소개, 프로필 사진, 공개 설정 등
+
+### 인증 및 뱃지 시스템
+1. **이메일 인증**:
+   - 이메일로 인증 링크 발송
+   - 클릭 시 인증 완료
+   - 실명 일치 확인 (불일치 시 인증 실패)
+
+2. **핸드폰 인증**:
+   - SMS로 인증번호 발송
+   - 입력 시 인증 완료
+   - 실명 일치 확인 (불일치 시 인증 실패)
+
+3. **뱃지 시스템** (복수 뱃지):
+   - 실존 인증 뱃지: 이메일 + 핸드폰 인증 완료
+   - 플랫폼 인증 뱃지: YouTube, GitHub 등 OAuth 연동
+   - 문서 인증 뱃지: 증명서류 해시 등록
+   - 추천 뱃지: 다른 사용자의 추천
+
+---
+
+## 🤝 명함 교환 플로우
+
+### QR 스캔 시나리오
+
+#### 1. 앱 미설치 사용자가 QR 스캔
+```
+QR 스캔 → 웹 랜딩 페이지 → 앱 설치 유도
+```
+
+#### 2. 앱 설치 사용자가 QR 스캔
+```
+QR 스캔
+  ↓
+프로필 페이지 표시
+  - 기본 정보 (이름, 직업, 한줄소개)
+  - 포트폴리오 (설정에 따라 공개/비공개)
+  - 증명 사진 (설정에 따라 공개/비공개)
+  ↓
+화면 하단 고정 버튼: "명함 저장하기"
+  ↓
+버튼 클릭
+  ↓
+명함 미리보기 모달
+  - 명함 정보 (이름, 직업, 연락처, QR 코드)
+  - 저장하기 버튼
+  ↓
+저장하기 클릭
+  ↓
+보관 명함에 저장 완료
+```
+
+### 명함 저장 후
+- 보관 명함 탭에서 확인 가능
+- 카테고리별 필터링
+- 명함 클릭 → 상세보기 (연락처 클릭 시 전화/이메일 앱 실행)
+- 삭제 가능
 
 ---
 
@@ -144,36 +266,85 @@ aurid/
 ### 핵심 테이블
 
 #### `profiles` - 사용자 프로필
-- `handle`, `display_name`, `bio`, `location`
-- `categories[]`, `tags[]` (배열)
-- `visibility_json` (JSONB, 필드별 공개 범위)
+```sql
+- id: UUID (Primary Key)
+- user_id: UUID (FK to auth.users)
+- handle: TEXT (고유 핸들, @username)
+- display_name: TEXT (표시 이름)
+- real_name: TEXT (실명, 수정 불가)
+- birth_date: DATE (생년월일, 수정 불가)
+- gender: TEXT (성별, 수정 불가)
+- phone: TEXT (핸드폰 번호)
+- email: TEXT (이메일)
+- categories: TEXT[] (직업 카테고리 배열)
+- headline: TEXT (한줄소개)
+- bio: TEXT (자기소개)
+- location: TEXT (위치)
+- links: TEXT[] (링크 배열)
+- tags: TEXT[] (태그 배열)
+- visibility_json: JSONB (필드별 공개 범위)
+- short_code: TEXT (시크릿 코드, 6~8자)
+- profile_settings: JSONB (프로필 설정)
+- card_settings: JSONB (명함 설정)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+```
 
-#### `claims` - 증명 카드
-- `type`: work/edu/award/portfolio
-- `proof_type`: oauth/hash/endorse
-- `is_public`: 공개 여부
+#### `verifications` - 인증 정보
+```sql
+- id: UUID (Primary Key)
+- profile_id: UUID (FK to profiles)
+- kind: TEXT (email/phone/oauth/document)
+- status: TEXT (pending/verified/failed)
+- verified_at: TIMESTAMP
+- metadata: JSONB (인증 관련 메타데이터)
+```
+
+#### `badges` - 뱃지
+```sql
+- id: UUID (Primary Key)
+- profile_id: UUID (FK to profiles)
+- type: TEXT (existence/platform/document/recommend)
+- name: TEXT (뱃지 이름)
+- icon: TEXT (아이콘)
+- color: TEXT (색상)
+- awarded_at: TIMESTAMP
+```
+
+#### `saved_cards` - 보관 명함
+```sql
+- id: UUID (Primary Key)
+- owner_id: UUID (명함을 저장한 사용자)
+- card_owner_id: UUID (명함 주인)
+- saved_at: TIMESTAMP
+- notes: TEXT (메모)
+```
 
 #### `updates` - 피드 업데이트
-- `kind`: join/edit/new_claim/role_change
-- `payload_json`: 이벤트 상세 정보
-
-#### `cards` - 패스 카드
-- `short_code`: 고유 짧은 코드
-- `status`: active/revoked
+```sql
+- id: UUID (Primary Key)
+- profile_id: UUID (FK to profiles)
+- kind: TEXT (join/edit/new_claim/badge)
+- payload_json: JSONB (이벤트 상세 정보)
+- created_at: TIMESTAMP
+```
 
 #### `contact_requests` - 연락 요청
-- `to_profile_id`, `from_profile_id`
-- `status`: pending/accepted/blocked
-
-#### `verifications` - 검증 정보
-- `kind`: email/phone/oauth/org
-- `status`: pending/verified/failed
+```sql
+- id: UUID (Primary Key)
+- to_profile_id: UUID (수신자)
+- from_profile_id: UUID (발신자)
+- message: TEXT (요청 메시지)
+- status: TEXT (pending/accepted/rejected/blocked)
+- created_at: TIMESTAMP
+```
 
 ### RLS (Row Level Security)
-- **profiles**: 모두 읽기 가능, 본인만 수정
-- **claims**: 공개된 것만 읽기, 본인은 모두 읽기/수정
+- **profiles**: 모두 읽기 가능 (visibility에 따라 제한), 본인만 수정
+- **verifications**: 본인만 읽기/수정
+- **badges**: 모두 읽기 가능, 시스템만 생성/수정
+- **saved_cards**: 본인 것만 읽기/수정/삭제
 - **contact_requests**: 송/수신자만 읽기
-- **verifications**: 본인만 읽기
 
 ---
 
@@ -189,7 +360,7 @@ npm install
 
 ### 2. 환경 변수 설정
 
-`.env` 파일 생성 (또는 기존 파일 수정):
+`.env` 파일 생성:
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -200,106 +371,190 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 1. [Supabase 대시보드](https://supabase.com/dashboard) 접속
 2. 프로젝트 생성 또는 선택
-3. **SQL Editor** → `supabase-schema.sql` 내용 복사 → 실행
-4. Auth 설정: Email/Phone 활성화
+3. **SQL Editor** → `supabase-schema.sql` 실행
+4. **SQL Editor** → `supabase-migration-001.sql` 실행
+5. **SQL Editor** → `supabase-migration-003.sql` 실행
+6. Auth 설정: Email/Phone 활성화
 
 ### 4. 앱 실행
 
-#### 개발 서버 (QR 코드로 모바일 테스트)
+#### 개발 서버
 ```bash
 npm start
 ```
 
-#### 웹 (레이아웃 빠른 확인)
+#### 웹
 ```bash
-npm run dev
-# 또는
 npm run web
 ```
 
-#### iOS/Android (에뮬레이터)
+#### iOS/Android
 ```bash
 npm run ios      # macOS only
 npm run android  # Android Studio 필요
 ```
 
-### 5. 모바일 테스트 (Expo Go 앱)
-
-1. **Expo Go** 앱 설치 (App Store / Google Play)
-2. `npm start` 실행 후 QR 코드 스캔
-3. 핸드폰과 PC가 **같은 WiFi**에 연결되어 있어야 함
-
 ---
 
 ## 🚧 개발 로드맵
 
-### ✅ MVP v0.1 (완료 - 2주)
+### ✅ MVP v0.1 (완료)
 - [x] Git/Supabase 세팅
 - [x] 5탭 네비게이션 구조
 - [x] DB 스키마 & RLS 설정
 - [x] 기본 화면 UI 골격
 
-### 🔄 v0.2 (2주 예상)
-- [ ] 온보딩 플로우 (이메일/전화 인증)
-- [ ] Pass 탭: QR 코드 생성 (라이브러리 연동)
-- [ ] Profile 탭: 편집 기능 (카테고리, 태그, 소개)
-- [ ] Supabase Auth 연동 (회원가입/로그인)
-- [ ] 프로필 생성 자동화 (첫 로그인 시)
+### ✅ v0.2 (완료)
+- [x] Pass 탭: QR 코드 생성
+- [x] Profile 탭: 편집 기능
+- [x] Supabase Auth 연동
+- [x] 프로필 생성 자동화
+- [x] AuthContext 구현
 
-### 🔜 v0.3 (3주 예상)
+### ✅ v0.3 (완료 - 현재)
+- [x] Card 탭 구조 (내 명함/보관 명함)
+- [x] MyCardScreen: 명함 미리보기, QR 공유 모달, 스캔 통계
+- [x] SavedCardsScreen: 카테고리 필터, 명함 리스트
+- [x] CardDetailScreen: 명함 상세보기, 연락처 액션
+- [x] CardEditorScreen: 명함 꾸미기 (템플릿, 색상, 공개 필드)
+- [x] PassScreen: 디지털 패스 카드 (밝기 조절, 시크릿 코드, 통계)
+- [x] MainNavigator: Stack 네비게이션 (모달 화면)
+
+### 🔄 v0.4 (다음 단계)
+- [ ] **더보기 탭 UI 개편**:
+  - [ ] 기본 정보 (이름, 뱃지, 직업)
+  - [ ] 메인 메뉴 (프로필, 포트폴리오, 증명 사진, 설정)
+  - [ ] 하단 메뉴 (공지사항, 이벤트 등)
+- [ ] **회원가입 플로우 개선**:
+  - [ ] 실명, 주민번호 입력 필드 추가
+  - [ ] 수정 불가 필드 처리 (실명, 생년월일, 성별)
+- [ ] **인증 시스템**:
+  - [ ] 이메일 인증 (실명 일치 확인)
+  - [ ] 핸드폰 인증 (실명 일치 확인)
+- [ ] **뱃지 시스템**:
+  - [ ] 뱃지 테이블 생성
+  - [ ] 인증 완료 시 뱃지 부여
+  - [ ] 프로필에 뱃지 표시
+
+### 🔜 v0.5 (예정)
+- [ ] QR 스캔 기능 구현
+- [ ] 명함 교환 플로우 (QR → 프로필 → 저장)
 - [ ] Discover: 카테고리/태그 필터 검색
 - [ ] Home: 실시간 피드 (Supabase Realtime)
 - [ ] Inbox: 연락 요청 수락/거절
-- [ ] Claim 카드 생성/편집 (work/edu/award/portfolio)
-- [ ] 공개 범위 프리셋 (Public/Lite/Request)
 
-### 🎯 v0.4~v1.0 (2개월 예상)
-- [ ] 플랫폼 OAuth (YouTube API, GitHub OAuth)
-- [ ] 문서 해시 증빙 (PDF → SHA-256)
-- [ ] Apple/Google Wallet Pass 생성
-- [ ] NFC 명함 등록 (NFC 태그 연동)
+### 🎯 v1.0 (장기 목표)
+- [ ] 포트폴리오 기능
+- [ ] 증명 사진 업로드
+- [ ] 플랫폼 OAuth (YouTube, GitHub)
+- [ ] 문서 해시 증빙
 - [ ] 추천/Endorse 기능
 - [ ] 알림 시스템 (푸시 알림)
-- [ ] 다국어 지원 (i18n)
-- [ ] 앱 스토어 배포 (TestFlight / Google Play Beta)
+- [ ] 앱 스토어 배포
 
-### 🔮 Future (v1.0+)
-- [ ] AR 명함 (로고 마커 → 프로필 카드)
+### 🔮 Future
+- [ ] Apple/Google Wallet Pass
+- [ ] NFC 명함
+- [ ] AR 명함
 - [ ] 팀/기관 디렉터리
-- [ ] 분석 대시보드 (스캔 통계, 유입 경로)
-- [ ] 프리미엄 기능 (커스텀 도메인, 고급 분석)
+- [ ] 분석 대시보드
 - [ ] 웹 플레이어 (비회원 프로필 뷰어)
 
 ---
 
-## 🔐 보안 및 프라이버시 원칙
+## 📊 현재 구현 상태 (v0.3)
+
+### 완성된 화면
+1. **HomeScreen** - 피드 (골격)
+2. **DiscoverScreen** - 탐색 (골격)
+3. **CardScreen** - 명함 탭 (내 명함/보관 명함 토글)
+4. **MyCardScreen** - 내 명함 상세 (QR, 공유 모달, 통계)
+5. **SavedCardsScreen** - 보관 명함 (카테고리 필터, 리스트)
+6. **CardDetailScreen** - 명함 상세보기 (연락처, 삭제)
+7. **CardEditorScreen** - 명함 꾸미기 (템플릿, 색상, 공개 필드)
+8. **PassScreen** - 디지털 패스 (QR, 시크릿 코드, 통계)
+9. **VerificationScreen** - 더보기 (골격, 개편 예정)
+10. **EditProfileScreen** - 프로필 편집
+11. **InboxScreen** - 받은편지함 (골격)
+12. **LoginScreen** - 로그인
+13. **RegisterScreen** - 회원가입
+
+### 구현된 기능
+- ✅ Supabase Auth 연동
+- ✅ AuthContext (전역 상태 관리)
+- ✅ QR 코드 생성
+- ✅ 프로필 CRUD
+- ✅ 명함 꾸미기 (설정 저장)
+- ✅ 카테고리 필터링
+- ✅ 공유 모달
+- ✅ 디지털 패스 (밝기 조절)
+
+### 미구현 기능
+- ⏳ QR 스캔
+- ⏳ 명함 교환 (저장)
+- ⏳ 실명 인증
+- ⏳ 뱃지 시스템
+- ⏳ 피드 데이터 로딩
+- ⏳ 검색 기능
+- ⏳ 연락 요청
+
+---
+
+## 🎨 디자인 시스템
+
+### 컬러 팔레트
+- **Primary**: Navy Blue (#2563EB) - 신뢰, 전문성
+- **Accent**: Cyan (#22D3EE) - 아이콘, 강조
+- **Background**: Light Slate (#F8FAFC)
+- **Surface**: White (#FFFFFF)
+- **Text**: Ink (#0B1220), Slate (#475569), Muted (#94A3B8)
+- **Success**: Green (#16A34A)
+- **Warning**: Amber (#F59E0B)
+- **Error**: Red (#DC2626)
+
+### 카테고리
+- 크리에이터 (videocam)
+- 개발자 (code-slash)
+- 디자이너 (color-palette)
+- 프리랜서 (briefcase)
+- 학생 (school)
+- 자영업자 (storefront)
+- 예술가 (brush)
+- 작가 (book)
+- 사진작가 (camera)
+- 마케터 (megaphone)
+- 교육자 (school)
+- 연구원 (flask)
+- 엔지니어 (construct)
+- 의료인 (medical)
+- 농업인 (leaf)
+- 기타 (ellipsis-horizontal)
+
+---
+
+## 🔐 보안 및 프라이버시
 
 ### 설계 철학
-1. **기본 비공개 (Privacy by Default)**
-   - 모든 정보는 생성 시 비공개
-   - 사용자가 명시적으로 공개 선택 시만 노출
+1. **실명 기반 신뢰**
+   - 회원가입 시 실명, 생년월일, 성별 입력 필수
+   - 주민번호 앞 7자리로 생년월일·성별 검증
+   - 수정 불가 처리로 신원 위조 방지
 
-2. **최소 권한 원칙 (Principle of Least Privilege)**
-   - 데이터베이스 RLS로 접근 제어
-   - 서비스 롤도 필요한 테이블만 접근
+2. **인증 일치 확인**
+   - 이메일/핸드폰 인증 시 실명 일치 여부 확인
+   - 불일치 시 인증 실패 처리
 
-3. **투명성과 제어권**
-   - 공개/철회 동의 로그 저장
-   - 사용자가 언제든 데이터 내보내기/삭제 가능
+3. **뱃지로 신뢰도 표시**
+   - 인증 완료 시 뱃지 부여
+   - 프로필에 뱃지 표시로 신뢰도 시각화
 
-4. **미성년자 보호**
-   - 19세 미만: 연령대만 노출, 디폴트 더 제한적
-   - 연락 요청 필터링 강화
+4. **사용자 제어권**
+   - 공개 범위 세밀하게 제어
+   - 명함 교환 시 원하는 정보만 공개
 
-5. **레이트 리밋 & 신고 시스템**
-   - 연락 요청: 1일 10건 제한 (인증 사용자)
-   - CAPTCHA (비인증 접근 시)
-   - 신고/차단 기능 기본 제공
-
-### 준수 예정 규정
-- GDPR (일반 데이터 보호 규정)
-- CCPA (캘리포니아 소비자 프라이버시법)
-- 한국 개인정보보호법
+5. **Row Level Security**
+   - 데이터베이스 레벨에서 접근 제어
+   - 본인 데이터만 수정 가능
 
 ---
 
@@ -311,22 +566,15 @@ npm run android  # Android Studio 필요
 - **버그 리포트**: GitHub Issues에 등록
 - **기능 제안**: Discussions에서 논의
 - **코드 기여**: PR 환영 (코드 리뷰 후 머지)
-- **디자인**: Figma 파일 공유 예정
 - **문서화**: README, Wiki 개선
-
-### 개발 가이드
-1. Fork & Clone
-2. 새 브랜치 생성 (`feature/your-feature`)
-3. 커밋 메시지 규칙: `feat:`, `fix:`, `docs:`, `refactor:`
-4. PR 생성 (main ← feature)
 
 ---
 
-## 📞 연락처 및 링크
+## 📞 연락처
 
 - **GitHub**: [https://github.com/Jjinhyuk/aurid](https://github.com/Jjinhyuk/aurid)
 - **이슈 트래킹**: [GitHub Issues](https://github.com/Jjinhyuk/aurid/issues)
-- **개발자**: Jjinhyuk (1인 개발, Solo Founder)
+- **개발자**: Jjinhyuk (Solo Founder)
 
 ---
 

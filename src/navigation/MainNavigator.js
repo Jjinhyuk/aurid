@@ -3,6 +3,9 @@ import TabNavigator from './TabNavigator';
 import InboxScreen from '../screens/InboxScreen';
 import CardEditorScreen from '../screens/CardEditorScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import MyCardScreen from '../screens/MyCardScreen';
+import SavedCardsScreen from '../screens/SavedCardsScreen';
+import CardDetailScreen from '../screens/CardDetailScreen';
 import colors from '../config/colors';
 
 const Stack = createStackNavigator();
@@ -17,6 +20,51 @@ export default function MainNavigator() {
       <Stack.Screen
         name="MainTabs"
         component={TabNavigator}
+      />
+      <Stack.Screen
+        name="MyCard"
+        component={MyCardScreen}
+        options={{
+          headerShown: true,
+          title: '내 명함',
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+          headerTintColor: colors.text,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="SavedCards"
+        component={SavedCardsScreen}
+        options={{
+          headerShown: true,
+          title: '보관 명함',
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+          headerTintColor: colors.text,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="CardDetail"
+        component={CardDetailScreen}
+        options={{
+          headerShown: true,
+          title: '명함 상세',
+          headerStyle: {
+            backgroundColor: colors.surface,
+          },
+          headerTintColor: colors.text,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
       <Stack.Screen
         name="Inbox"

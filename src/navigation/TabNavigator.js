@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import DiscoverScreen from '../screens/DiscoverScreen';
+import CardScreen from '../screens/CardScreen';
 import PassScreen from '../screens/PassScreen';
 import VerificationScreen from '../screens/VerificationScreen';
 import CustomHeader from '../components/CustomHeader';
@@ -46,12 +47,22 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
+        name="Card"
+        component={CardScreen}
+        options={{
+          title: '명함',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="business-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Pass"
         component={PassScreen}
         options={{
           title: '패스',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="card-outline" size={size} color={color} />
+            <Ionicons name="qr-code-outline" size={size} color={color} />
           ),
         }}
       />

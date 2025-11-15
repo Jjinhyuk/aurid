@@ -1,11 +1,15 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import colors from '../config/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../config/supabase';
 
 export default function CardEditorScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { profile, refreshProfile } = useAuth();
+  const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState('basic');
   const [selectedColor, setSelectedColor] = useState(colors.primaryEmphasis);
   const [visibleFields, setVisibleFields] = useState({
@@ -16,6 +20,16 @@ export default function CardEditorScreen({ navigation }) {
     links: true,
     qr: true,
   });
+
+  // Load existing settings from profile
+  useEffect(() => {
+    if (profile?.card_settings) {
+      const settings = profile.card_settings;
+      if (settings.template) setSelectedTemplate(settings.template);
+      if (settings.color) setSelectedColor(settings.color);
+      if (settings.visibleFields) setVisibleFields(settings.visibleFields);
+    }
+  }, [profile]);
 
   const templates = [
     { id: 'basic', name: '기본형' },
@@ -38,6 +52,35 @@ export default function CardEditorScreen({ navigation }) {
     }));
   };
 
+  const handleSave = async () => {
+    if (!profile) return;
+
+    setSaving(true);
+    try {
+      const cardSettings = {
+        template: selectedTemplate,
+        color: selectedColor,
+        visibleFields: visibleFields,
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ card_settings: cardSettings })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      await refreshProfile();
+      Alert.alert('저장 완료', '명함 설정이 저장되었습니다.');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Save error:', error);
+      Alert.alert('저장 실패', '명함 설정을 저장하는 중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* 헤더 */}
@@ -46,8 +89,12 @@ export default function CardEditorScreen({ navigation }) {
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>명함 꾸미기</Text>
-        <TouchableOpacity style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>저장</Text>
+        <TouchableOpacity
+          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          onPress={handleSave}
+          disabled={saving}
+        >
+          <Text style={styles.saveButtonText}>{saving ? '저장 중...' : '저장'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -238,6 +285,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: colors.primaryEmphasis,
     borderRadius: 8,
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
   },
   saveButtonText: {
     color: colors.surface,
