@@ -16,7 +16,7 @@ import colors from '../config/colors';
 import { supabase } from '../config/supabase';
 
 export default function EditProfileScreen({ navigation }) {
-  const { profile, loadProfile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
@@ -57,7 +57,7 @@ export default function EditProfileScreen({ navigation }) {
     }
 
     // 프로필 다시 로드
-    await loadProfile();
+    await refreshProfile();
     Alert.alert('완료', '프로필이 업데이트되었습니다.', [
       { text: '확인', onPress: () => navigation.goBack() }
     ]);

@@ -1,12 +1,37 @@
-import { View, Text, StyleSheet, TouchableOpacity, Share, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Share, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 import { useAuth } from '../contexts/AuthContext';
 import colors from '../config/colors';
 import * as Clipboard from 'expo-clipboard';
 
 export default function PassScreen() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
+  const navigation = useNavigation();
+
+  // 카테고리 레이블 매핑
+  const categoryLabels = {
+    creator: '크리에이터',
+    developer: '개발자',
+    designer: '디자이너',
+    freelancer: '프리랜서',
+    student: '학생',
+    local_biz: '자영업자',
+    artist: '예술가',
+    writer: '작가',
+    photographer: '사진작가',
+    marketer: '마케터',
+    educator: '교육자',
+    researcher: '연구원',
+    engineer: '엔지니어',
+    medical: '의료인',
+    farmer: '농업인',
+    other: '기타',
+  };
+
+  const primaryCategory = profile?.categories?.[0] || 'other';
+  const categoryLabel = categoryLabels[primaryCategory] || '사용자';
 
   const profileUrl = `https://aurid.app/@${profile?.handle || 'user'}`;
   const shortCode = profile?.short_code || 'LOADING';
@@ -33,7 +58,92 @@ export default function PassScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      {/* 명함 미리보기 섹션 */}
+      <View style={styles.cardSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>내 명함</Text>
+          <TouchableOpacity
+            style={styles.customizeButton}
+            onPress={() => navigation.navigate('CardEditor')}
+          >
+            <Ionicons name="color-wand-outline" size={18} color={colors.primaryEmphasis} />
+            <Text style={styles.customizeButtonText}>꾸미기</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.cardPreview}>
+          <View style={styles.card}>
+            {/* 아바타 */}
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {profile?.display_name?.charAt(0) || '👤'}
+              </Text>
+            </View>
+
+            {/* 이름 */}
+            <Text style={styles.name}>{profile?.display_name || '이름 없음'}</Text>
+
+            {/* 직함/카테고리 */}
+            <Text style={styles.category}>{categoryLabel}</Text>
+
+            {/* 핸들 */}
+            <Text style={styles.handle}>@{profile?.handle || 'user'}</Text>
+
+            {/* 한줄소개 */}
+            {profile?.headline && (
+              <Text style={styles.headline}>"{profile.headline}"</Text>
+            )}
+
+            {/* 구분선 */}
+            <View style={styles.divider} />
+
+            {/* 연락 정보 */}
+            <View style={styles.contactInfo}>
+              <View style={styles.infoRow}>
+                <Ionicons name="mail-outline" size={14} color={colors.textSecondary} />
+                <Text style={styles.infoText} numberOfLines={1}>{user?.email || '이메일 없음'}</Text>
+              </View>
+              {profile?.phone && (
+                <View style={styles.infoRow}>
+                  <Ionicons name="call-outline" size={14} color={colors.textSecondary} />
+                  <Text style={styles.infoText}>{profile.phone}</Text>
+                </View>
+              )}
+              {profile?.links?.length > 0 && (
+                <View style={styles.infoRow}>
+                  <Ionicons name="link-outline" size={14} color={colors.textSecondary} />
+                  <Text style={styles.infoText} numberOfLines={1}>
+                    {profile.links[0]}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* 미니 QR 코드 */}
+            <View style={styles.miniQrSection}>
+              {profile?.handle ? (
+                <QRCode
+                  value={profileUrl}
+                  size={60}
+                  color={colors.primary}
+                  backgroundColor={colors.surface}
+                />
+              ) : (
+                <View style={styles.miniQrPlaceholder}>
+                  <Text style={styles.miniQrText}>QR</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* 공유 섹션 */}
+      <View style={styles.shareSection}>
+        <Text style={styles.sectionTitle}>공유 수단</Text>
+      </View>
+
       <View style={styles.content}>
         {/* QR 코드 카드 */}
         <View style={styles.qrCard}>
@@ -107,7 +217,7 @@ export default function PassScreen() {
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -116,9 +226,140 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    flex: 1,
+  cardSection: {
+    backgroundColor: colors.surface,
     padding: 20,
+    paddingTop: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  customizeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.primaryLight,
+    borderRadius: 16,
+    gap: 4,
+  },
+  customizeButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primaryEmphasis,
+  },
+  cardPreview: {
+    alignItems: 'center',
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  avatarText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: colors.primaryEmphasis,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  category: {
+    fontSize: 14,
+    color: colors.primaryEmphasis,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  handle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginBottom: 8,
+  },
+  headline: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  divider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 12,
+  },
+  contactInfo: {
+    width: '100%',
+    gap: 6,
+    marginBottom: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+  miniQrSection: {
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  miniQrPlaceholder: {
+    width: 60,
+    height: 60,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  miniQrText: {
+    fontSize: 12,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  shareSection: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  content: {
+    padding: 20,
+    paddingTop: 0,
     gap: 20,
   },
   qrCard: {

@@ -1,0 +1,234 @@
+# Aurid Pass v0.3 - 전문가 피드백 반영 업그레이드
+
+## 📋 개요
+ChatGPT Codex 피드백을 기반으로 전문가 관점에서 핵심 문제점을 해결하고 기능을 개선했습니다.
+
+---
+
+## ✅ Critical Issues 해결 (즉시 수정)
+
+### 1. EditProfileScreen refreshProfile 수정 ✅
+**문제:** `loadProfile` 함수가 AuthContext에 노출되지 않아 저장 후 새로고침 실패
+**해결:** AuthContext의 `refreshProfile` 사용으로 변경
+```javascript
+// Before
+const { profile, loadProfile } = useAuth();
+await loadProfile();
+
+// After
+const { profile, refreshProfile } = useAuth();
+await refreshProfile();
+```
+
+### 2. profiles 테이블 스키마 업데이트 ✅
+**문제:** `short_code`, `headline`, `phone`, `links` 컬럼이 스키마에 없음
+**해결:**
+- `supabase-schema.sql` 업데이트
+- `supabase-migration-001.sql` 생성 (기존 DB 마이그레이션용)
+- 기존 프로필에 자동으로 short_code 생성
+
+**추가된 컬럼:**
+```sql
+short_code TEXT UNIQUE,     -- 6자 영숫자 코드
+headline TEXT,              -- 한줄소개
+phone TEXT,                 -- 전화번호
+links TEXT[]                -- 링크 배열 (최대 3개)
+```
+
+### 3. Card vs Pass 화면 통합 및 탭 구조 개선 ✅
+**문제:** Card와 Pass 화면이 분리되어 사용자 혼란 초래
+**해결:**
+- **Pass 화면으로 통합**: 명함 미리보기 + 공유 수단 통합
+- **탭 구조 변경**: Home/Discover/Card/Pass/Verification → **Home/Discover/Pass/Profile**
+- Card 탭 제거, Verification을 Profile로 이름 변경
+
+**Pass 화면 구조:**
+```
+┌─ 내 명함 (명함 미리보기) ──────────────┐
+│  • 아바타, 이름, 카테고리, 핸들      │
+│  • 한줄소개, 연락처 정보             │
+│  • 미니 QR 코드                      │
+│  [꾸미기] 버튼 → CardEditor          │
+└───────────────────────────────────────┘
+┌─ 공유 수단 ──────────────────────────┐
+│  • 큰 QR 코드 + 공유 버튼            │
+│  • 짧은 링크 (복사)                  │
+│  • 시크릿 코드 (복사)                │
+│  • 스캔 통계                         │
+└───────────────────────────────────────┘
+```
+
+---
+
+## 🚀 핵심 기능 구현
+
+### 4. Home 화면 updates 테이블 연동 ✅
+**이전:** 정적 플레이스홀더만 표시
+**현재:**
+- **실시간 피드**: `updates` 테이블에서 최신 20개 업데이트 로드
+- **Pull to Refresh**: 당겨서 새로고침 기능
+- **검증 우선 토글**: 검증된 사용자 우선 표시 (UI 완성, 로직은 향후 구현)
+- **업데이트 타입별 아이콘**:
+  - 가입 (person-add)
+  - 프로필 편집 (create)
+  - 새 증명 추가 (ribbon)
+  - 역할 변경 (swap-horizontal)
+
+**코드 구조:**
+```javascript
+const loadUpdates = async () => {
+  const { data } = await supabase
+    .from('updates')
+    .select(`
+      *,
+      profiles:profile_id (display_name, handle, avatar_url, categories)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  setUpdates(data || []);
+};
+```
+
+---
+
+## 🔒 보안 개선
+
+### 5. RLS 정책 기본 비공개로 변경 ✅
+**문제:** 모든 프로필과 업데이트가 전체 공개되어 "기본 비공개" 원칙 위배
+**해결:** `supabase-migration-002-rls.sql` 생성
+
+**새로운 정책:**
+
+#### Profiles
+- ✅ **본인 프로필**: 항상 조회 가능
+- ✅ **공개 프로필**: `visibility_json.default = 'public'`인 경우만 조회 가능
+- ✅ **수정/생성**: 본인만 가능
+
+#### Updates
+- ✅ **공개 프로필 업데이트**: 공개 설정된 프로필의 업데이트만 피드에 표시
+- ✅ **생성**: 본인 프로필에만 가능
+
+#### Cards
+- ✅ **활성 카드**: 누구나 조회 가능 (스캔 목적)
+- ✅ **본인 카드**: 본인만 수정/삭제 가능
+
+#### Contact Requests
+- ✅ **조회**: 본인이 보내거나 받은 요청만
+- ✅ **생성**: 공개 프로필에만 요청 가능
+- ✅ **수정**: 받은 요청만 상태 변경 가능
+
+#### Card Scans
+- ✅ **조회**: 카드 소유자만
+- ✅ **생성**: 누구나 (익명 스캔 허용)
+
+---
+
+## 📂 변경 파일 목록
+
+### 신규 파일
+- `supabase-migration-001.sql` - profiles 테이블 컬럼 추가
+- `supabase-migration-002-rls.sql` - RLS 정책 개선
+- `UPGRADE_SUMMARY_v0.3.md` - 이 문서
+
+### 수정 파일
+- `src/contexts/AuthContext.js` - refreshProfile 이미 존재 확인
+- `src/screens/EditProfileScreen.js` - loadProfile → refreshProfile
+- `src/screens/PassScreen.js` - 명함 미리보기 + 공유 수단 통합
+- `src/screens/HomeScreen.js` - updates 피드 연동, 검증 우선 토글
+- `src/navigation/TabNavigator.js` - 4탭 구조 (Card 제거, Profile로 변경)
+- `supabase-schema.sql` - profiles 테이블 스키마 업데이트
+
+### 삭제/미사용 파일
+- `src/screens/CardScreen.js` - Pass로 통합되어 탭에서 제거 (파일은 유지)
+
+---
+
+## 🎯 남은 작업 (향후 개선)
+
+### Medium Priority
+1. **Discover 검색/필터**
+   - 카테고리, 지역, 스킬, 검증 레벨 필터
+   - 검색어 기반 프로필 검색
+   - 결과 리스트 무한 스크롤
+
+2. **Inbox 실제 기능**
+   - contact_requests 테이블 연동
+   - 받은/보낸 요청 탭
+   - 수락/거절/차단 액션
+   - 읽음 표시 및 알림 카운터
+
+3. **Pass 고급 기능**
+   - 권한 프리셋 (전체 공개/일부 공개/비공개)
+   - QR/링크 만료 설정
+   - 시크릿 코드 재발급
+   - 스캔 위치/시간 통계
+
+4. **프로필 공개 범위 설정**
+   - 전체 공개/일부 필드만/비공개
+   - 필드별 세부 공개 설정
+
+### Low Priority
+5. 무한 스크롤 (Home, Discover)
+6. 검증 우선 필터 로직 구현
+7. 알림 시스템
+8. 레이트리밋 및 이상징후 감지
+
+---
+
+## 🚀 배포 방법
+
+### 1. Supabase 마이그레이션 실행
+```sql
+-- Supabase Dashboard > SQL Editor에서 순서대로 실행
+
+-- Step 1: 컬럼 추가
+supabase-migration-001.sql 실행
+
+-- Step 2: RLS 정책 개선
+supabase-migration-002-rls.sql 실행
+```
+
+### 2. 앱 재시작
+```bash
+npm start
+```
+
+---
+
+## 📊 Before vs After
+
+| 구분 | Before (v0.2) | After (v0.3) |
+|------|---------------|--------------|
+| **탭 구조** | 5탭 (Home/Discover/Card/Pass/Verification) | 4탭 (Home/Discover/Pass/Profile) |
+| **명함 + 공유** | 분리 (Card/Pass) | 통합 (Pass) |
+| **Home 피드** | 정적 플레이스홀더 | updates 테이블 실시간 연동 |
+| **RLS 정책** | 전체 공개 | 기본 비공개 (visibility 기반) |
+| **프로필 편집** | 저장 후 새로고침 안됨 | refreshProfile로 즉시 반영 |
+| **DB 스키마** | short_code 등 누락 | 모든 필드 완비 |
+
+---
+
+## ✨ 핵심 개선 효과
+
+1. **사용자 경험 개선**
+   - 명함과 공유가 한 화면에서 처리 가능
+   - 탭 수 감소로 네비게이션 단순화
+
+2. **데이터 무결성**
+   - profiles 테이블 스키마 완성
+   - EditProfile 저장 후 즉시 반영
+
+3. **보안 강화**
+   - 기본 비공개 원칙 준수
+   - visibility 기반 세밀한 접근 제어
+
+4. **핵심 기능 구현**
+   - 실시간 피드 시스템
+   - 검증 우선 필터 UI
+
+---
+
+**Generated by Claude Code**
+2025-11-15 - v0.3 Expert Upgrade
+
+모든 Critical 이슈가 해결되었으며, 핵심 기능이 구현되어 즉시 사용 가능합니다.

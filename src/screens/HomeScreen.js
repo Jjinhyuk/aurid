@@ -1,13 +1,111 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../config/supabase';
 import colors from '../config/colors';
 
 export default function HomeScreen() {
   const { profile } = useAuth();
+  const [updates, setUpdates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+
+  // 업데이트 피드 로드
+  const loadUpdates = async () => {
+    try {
+      let query = supabase
+        .from('updates')
+        .select(`
+          *,
+          profiles:profile_id (
+            id,
+            display_name,
+            handle,
+            avatar_url,
+            categories
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      setUpdates(data || []);
+    } catch (error) {
+      console.error('피드 로드 에러:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUpdates();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadUpdates();
+  };
+
+  // 업데이트 타입별 아이콘 및 텍스트
+  const getUpdateInfo = (update) => {
+    switch (update.kind) {
+      case 'join':
+        return { icon: 'person-add', color: colors.accent, text: '가입했습니다' };
+      case 'edit':
+        return { icon: 'create', color: colors.primaryEmphasis, text: '프로필을 업데이트했습니다' };
+      case 'new_claim':
+        return { icon: 'ribbon', color: colors.success, text: '새로운 증명을 추가했습니다' };
+      case 'role_change':
+        return { icon: 'swap-horizontal', color: colors.textSecondary, text: '역할이 변경되었습니다' };
+      default:
+        return { icon: 'information-circle', color: colors.textMuted, text: '활동' };
+    }
+  };
+
+  const renderUpdate = (update) => {
+    const info = getUpdateInfo(update);
+    const profile = update.profiles;
+
+    return (
+      <View key={update.id} style={styles.updateCard}>
+        <View style={styles.updateHeader}>
+          <View style={styles.updateAvatar}>
+            <Text style={styles.updateAvatarText}>
+              {profile?.display_name?.charAt(0) || '?'}
+            </Text>
+          </View>
+          <View style={styles.updateInfo}>
+            <Text style={styles.updateName}>{profile?.display_name || '알 수 없음'}</Text>
+            <Text style={styles.updateHandle}>@{profile?.handle || 'unknown'}</Text>
+          </View>
+          <Ionicons name={info.icon} size={20} color={info.color} />
+        </View>
+        <Text style={styles.updateText}>{info.text}</Text>
+        <Text style={styles.updateTime}>
+          {new Date(update.created_at).toLocaleDateString('ko-KR', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Text>
+      </View>
+    );
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primaryEmphasis]} />
+      }
+    >
       {/* 웰컴 배너 */}
       <View style={styles.welcomeBanner}>
         <View style={styles.welcomeContent}>
@@ -26,35 +124,62 @@ export default function HomeScreen() {
 
       {/* 피드 섹션 */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>최근 활동</Text>
-
-        {/* 빈 상태 */}
-        <View style={styles.emptyState}>
-          <Ionicons name="newspaper-outline" size={64} color={colors.textMuted} />
-          <Text style={styles.emptyTitle}>아직 피드가 없습니다</Text>
-          <Text style={styles.emptyText}>
-            다른 사용자를 팔로우하거나, 프로필을 업데이트하면 피드에 활동이 표시됩니다.
-          </Text>
-        </View>
-
-        {/* 추천 액션 */}
-        <View style={styles.actionCards}>
-          <TouchableOpacity style={styles.actionCard}>
-            <View style={styles.actionIcon}>
-              <Ionicons name="search" size={24} color={colors.primaryEmphasis} />
-            </View>
-            <Text style={styles.actionTitle}>사용자 발견</Text>
-            <Text style={styles.actionText}>관심있는 분야의 사람들을 찾아보세요</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionCard}>
-            <View style={styles.actionIcon}>
-              <Ionicons name="shield-checkmark" size={24} color={colors.accent} />
-            </View>
-            <Text style={styles.actionTitle}>검증 완료</Text>
-            <Text style={styles.actionText}>신뢰도를 높이기 위해 인증을 완료하세요</Text>
+        <View style={styles.feedHeader}>
+          <Text style={styles.sectionTitle}>최근 활동</Text>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setVerifiedOnly(!verifiedOnly)}
+          >
+            <Ionicons
+              name={verifiedOnly ? 'checkmark-circle' : 'checkmark-circle-outline'}
+              size={18}
+              color={verifiedOnly ? colors.primaryEmphasis : colors.textMuted}
+            />
+            <Text style={[styles.filterText, verifiedOnly && styles.filterTextActive]}>
+              검증 우선
+            </Text>
           </TouchableOpacity>
         </View>
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primaryEmphasis} />
+          </View>
+        ) : updates.length === 0 ? (
+          <>
+            {/* 빈 상태 */}
+            <View style={styles.emptyState}>
+              <Ionicons name="newspaper-outline" size={64} color={colors.textMuted} />
+              <Text style={styles.emptyTitle}>아직 피드가 없습니다</Text>
+              <Text style={styles.emptyText}>
+                다른 사용자를 팔로우하거나, 프로필을 업데이트하면 피드에 활동이 표시됩니다.
+              </Text>
+            </View>
+
+            {/* 추천 액션 */}
+            <View style={styles.actionCards}>
+              <TouchableOpacity style={styles.actionCard}>
+                <View style={styles.actionIcon}>
+                  <Ionicons name="search" size={24} color={colors.primaryEmphasis} />
+                </View>
+                <Text style={styles.actionTitle}>사용자 발견</Text>
+                <Text style={styles.actionText}>관심있는 분야의 사람들을 찾아보세요</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionCard}>
+                <View style={styles.actionIcon}>
+                  <Ionicons name="shield-checkmark" size={24} color={colors.accent} />
+                </View>
+                <Text style={styles.actionTitle}>검증 완료</Text>
+                <Text style={styles.actionText}>신뢰도를 높이기 위해 인증을 완료하세요</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <View style={styles.updatesContainer}>
+            {updates.map(renderUpdate)}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -104,11 +229,91 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
   },
+  feedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 15,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.background,
+    borderRadius: 16,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    fontWeight: '500',
+  },
+  filterTextActive: {
+    color: colors.primaryEmphasis,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  updatesContainer: {
+    gap: 12,
+  },
+  updateCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  updateHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  updateAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  updateAvatarText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.primaryEmphasis,
+  },
+  updateInfo: {
+    flex: 1,
+  },
+  updateName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  updateHandle: {
+    fontSize: 13,
+    color: colors.textMuted,
+  },
+  updateText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 6,
+    lineHeight: 20,
+  },
+  updateTime: {
+    fontSize: 12,
+    color: colors.textMuted,
   },
   emptyState: {
     backgroundColor: colors.surface,

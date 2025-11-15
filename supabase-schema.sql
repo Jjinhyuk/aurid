@@ -7,9 +7,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   handle TEXT UNIQUE NOT NULL,
   display_name TEXT NOT NULL,
+  short_code TEXT UNIQUE,
+  headline TEXT,
   bio TEXT,
+  phone TEXT,
   location TEXT,
   avatar_url TEXT,
+  links TEXT[],
   categories TEXT[] DEFAULT '{}',
   tags TEXT[] DEFAULT '{}',
   visibility_json JSONB DEFAULT '{}',
@@ -83,6 +87,7 @@ CREATE TABLE IF NOT EXISTS verifications (
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS idx_profiles_handle ON profiles(handle);
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_short_code ON profiles(short_code);
 CREATE INDEX IF NOT EXISTS idx_claims_profile_id ON claims(profile_id);
 CREATE INDEX IF NOT EXISTS idx_updates_profile_id ON updates(profile_id);
 CREATE INDEX IF NOT EXISTS idx_updates_created_at ON updates(created_at DESC);
