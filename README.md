@@ -109,17 +109,20 @@ aurid/
 │   │   ├── PassScreen.js        # 디지털 패스 (QR/시크릿 코드)
 │   │   ├── VerificationScreen.js # 더보기 (프로필/설정)
 │   │   ├── EditProfileScreen.js # 프로필 편집
+│   │   ├── VerifyEmailScreen.js # 이메일 인증
+│   │   ├── VerifyPhoneScreen.js # 핸드폰 인증
 │   │   ├── InboxScreen.js       # 받은편지함
 │   │   ├── LoginScreen.js       # 로그인
-│   │   └── RegisterScreen.js    # 회원가입
+│   │   ├── SignupScreen.js      # 회원가입
+│   │   └── WelcomeScreen.js     # 웰컴 화면
 │   └── components/
 │       └── CustomHeader.js      # 커스텀 헤더
 ├── App.js                        # 앱 진입점
 ├── .env                          # 환경 변수 (git 제외)
 ├── supabase-schema.sql          # 초기 DB 스키마
-├── supabase-migration-001.sql   # 프로필 설정 추가
-├── supabase-migration-002.sql   # 실명 및 인증 필드 추가 (예정)
-└── supabase-migration-003.sql   # 명함 설정 추가
+├── supabase-migration-001-profile-settings.sql   # 프로필 설정 추가
+├── supabase-migration-002-identity-fields.sql    # 실명 및 인증 필드 추가
+└── supabase-migration-003-card-settings.sql      # 명함 설정 추가
 ```
 
 ---
@@ -165,60 +168,77 @@ aurid/
   - 사용 이력
   - 패스 정보
 
-### 5. 더보기 (프로필 → 변경 예정)
-**현재 상태**: VerificationScreen (임시)
+### 5. 더보기
+**현재 상태**: VerificationScreen (완성)
 
-**변경 예정 구조**:
-- **상단**: 기본 정보
-  - 이름
+**구조**:
+- **상단**: 프로필 요약
+  - 프로필 아바타
+  - 이름 (display_name)
   - 뱃지 (인증 상태 표시)
-  - 직업
-- **메인 메뉴** (가로 배열 라운드 버튼):
-  - 프로필
-  - 포트폴리오
-  - 증명 사진
-  - 설정
+  - 카테고리
+  - 핸들 (@username)
+- **메인 메뉴** (1줄 4개 배치):
+  - 프로필 → EditProfile
+  - 명함함 → SavedCards
+  - 증명 사진 (예정)
+  - 설정 (예정)
 - **구분선**
-- **하단 메뉴**:
-  - 공지사항
-  - 이벤트
-  - 고객센터
-  - 앱 정보
+- **하단 메뉴 리스트**:
+  - 공지사항 (예정)
+  - 이벤트 (예정)
+  - 고객센터 (예정)
+  - 앱 정보 (예정)
+- **로그아웃 버튼**
 
 ---
 
 ## 🔐 회원가입 및 인증 시스템
 
 ### 필수 입력 정보 (회원가입)
-1. **실명** (수정 불가)
-2. **주민번호** 앞 6자리 + 뒤 1자리 (생년월일 + 성별 확인용, 수정 불가)
-3. **성별** (수정 불가)
-4. **핸드폰 번호** (수정 가능)
-5. **이메일** (수정 가능)
-6. **직업** (복수 선택 가능, 수정 가능)
+1. **이메일** (로그인 ID)
+2. **비밀번호** (8자 이상)
+3. **실명** (수정 불가)
+4. **주민번호** 앞 6자리 + 뒤 1자리 (생년월일 + 성별 확인용, 저장 안 됨)
+   - SHA-256 해싱하여 identity_hash로 저장
+   - 중복 가입 방지 (같은 주민번호로 여러 계정 생성 불가)
+5. **핸드폰 번호** (수정 가능)
+
+### 자동 생성 정보
+- **생년월일** (주민번호에서 자동 파싱, 수정 불가)
+- **성별** (주민번호에서 자동 파싱, 수정 불가)
+- **핸들** (이메일 앞부분에서 자동 생성, 수정 불가)
+- **시크릿 코드** (6자리 랜덤 코드)
 
 ### 정보 수정 권한
-- **영구 잠금**: 이름, 생년월일, 성별
+- **영구 잠금**: 실명, 생년월일, 성별, identity_hash
   - 사용자는 수정 불가
   - 운영자만 수정 가능 (고객센터 요청 시)
-- **사용자 수정 가능**: 핸드폰번호, 이메일, 직업, 한줄소개, 프로필 사진, 공개 설정 등
+- **사용자 수정 가능**: display_name, 핸드폰번호, 이메일, 카테고리, 한줄소개, 프로필 사진, 링크, 공개 설정 등
 
 ### 인증 및 뱃지 시스템
 1. **이메일 인증**:
-   - 이메일로 인증 링크 발송
-   - 클릭 시 인증 완료
+   - 6자리 인증 코드 발송 (개발 모드: Alert 표시)
+   - 유효 시간: 10분
    - 실명 일치 확인 (불일치 시 인증 실패)
+   - 성공 시 "이메일 인증" 뱃지 부여
 
 2. **핸드폰 인증**:
-   - SMS로 인증번호 발송
-   - 입력 시 인증 완료
+   - 6자리 인증 코드 발송 (개발 모드: Alert 표시)
+   - 유효 시간: 5분
    - 실명 일치 확인 (불일치 시 인증 실패)
+   - 성공 시 "핸드폰 인증" 뱃지 부여
 
-3. **뱃지 시스템** (복수 뱃지):
-   - 실존 인증 뱃지: 이메일 + 핸드폰 인증 완료
-   - 플랫폼 인증 뱃지: YouTube, GitHub 등 OAuth 연동
-   - 문서 인증 뱃지: 증명서류 해시 등록
-   - 추천 뱃지: 다른 사용자의 추천
+3. **실존 인증** (자동):
+   - 이메일 + 핸드폰 인증 모두 완료 시 자동 부여
+   - "실존 인증" 뱃지 (shield-checkmark)
+   - 가장 높은 신뢰도 표시
+
+4. **뱃지 타입** (복수 뱃지 가능):
+   - **existence**: 이메일 인증, 핸드폰 인증, 실존 인증
+   - **platform**: YouTube, GitHub 등 OAuth 연동 (예정)
+   - **document**: 증명서류 해시 등록 (예정)
+   - **recommend**: 다른 사용자의 추천 (예정)
 
 ---
 
@@ -269,11 +289,12 @@ QR 스캔
 ```sql
 - id: UUID (Primary Key)
 - user_id: UUID (FK to auth.users)
-- handle: TEXT (고유 핸들, @username)
+- handle: TEXT (고유 핸들, @username, 수정 불가)
 - display_name: TEXT (표시 이름)
 - real_name: TEXT (실명, 수정 불가)
 - birth_date: DATE (생년월일, 수정 불가)
 - gender: TEXT (성별, 수정 불가)
+- identity_hash: TEXT UNIQUE (주민번호 SHA-256 해시, 중복 가입 방지)
 - phone: TEXT (핸드폰 번호)
 - email: TEXT (이메일)
 - categories: TEXT[] (직업 카테고리 배열)
@@ -295,9 +316,11 @@ QR 스캔
 - id: UUID (Primary Key)
 - profile_id: UUID (FK to profiles)
 - kind: TEXT (email/phone/oauth/document)
-- status: TEXT (pending/verified/failed)
+- status: TEXT (pending/verified/failed/revoked)
 - verified_at: TIMESTAMP
-- metadata: JSONB (인증 관련 메타데이터)
+- verified_name: TEXT (인증 시 실명, 매칭용)
+- metadata: JSONB (인증 코드, 만료 시간 등)
+- created_at: TIMESTAMP
 ```
 
 #### `badges` - 뱃지
@@ -305,9 +328,10 @@ QR 스캔
 - id: UUID (Primary Key)
 - profile_id: UUID (FK to profiles)
 - type: TEXT (existence/platform/document/recommend)
-- name: TEXT (뱃지 이름)
-- icon: TEXT (아이콘)
-- color: TEXT (색상)
+- name: TEXT (뱃지 이름, 예: "이메일 인증", "실존 인증")
+- icon: TEXT (Ionicons 아이콘 이름)
+- color: TEXT (HEX 색상)
+- metadata: JSONB (뱃지 관련 정보)
 - awarded_at: TIMESTAMP
 ```
 
@@ -411,7 +435,7 @@ npm run android  # Android Studio 필요
 - [x] 프로필 생성 자동화
 - [x] AuthContext 구현
 
-### ✅ v0.3 (완료 - 현재)
+### ✅ v0.3 (완료)
 - [x] Card 탭 구조 (내 명함/보관 명함)
 - [x] MyCardScreen: 명함 미리보기, QR 공유 모달, 스캔 통계
 - [x] SavedCardsScreen: 카테고리 필터, 명함 리스트
@@ -420,21 +444,35 @@ npm run android  # Android Studio 필요
 - [x] PassScreen: 디지털 패스 카드 (밝기 조절, 시크릿 코드, 통계)
 - [x] MainNavigator: Stack 네비게이션 (모달 화면)
 
-### 🔄 v0.4 (다음 단계)
-- [ ] **더보기 탭 UI 개편**:
-  - [ ] 기본 정보 (이름, 뱃지, 직업)
-  - [ ] 메인 메뉴 (프로필, 포트폴리오, 증명 사진, 설정)
-  - [ ] 하단 메뉴 (공지사항, 이벤트 등)
-- [ ] **회원가입 플로우 개선**:
-  - [ ] 실명, 주민번호 입력 필드 추가
-  - [ ] 수정 불가 필드 처리 (실명, 생년월일, 성별)
-- [ ] **인증 시스템**:
-  - [ ] 이메일 인증 (실명 일치 확인)
-  - [ ] 핸드폰 인증 (실명 일치 확인)
-- [ ] **뱃지 시스템**:
-  - [ ] 뱃지 테이블 생성
-  - [ ] 인증 완료 시 뱃지 부여
-  - [ ] 프로필에 뱃지 표시
+### ✅ v0.4 (완료 - 현재)
+- [x] **더보기 탭 UI 개편**:
+  - [x] 프로필 요약 (이름, 핸들, 뱃지, 카테고리)
+  - [x] 메인 메뉴 1x4 배치 (프로필, 명함함, 증명 사진, 설정)
+  - [x] 하단 리스트 메뉴 (공지사항, 이벤트, 고객센터, 앱 정보)
+  - [x] 로그아웃 버튼
+- [x] **회원가입 플로우 개선**:
+  - [x] 실명, 주민번호 앞 7자리, 핸드폰 입력 필드 추가
+  - [x] SHA-256 해싱으로 identity_hash 생성
+  - [x] 중복 가입 방지 (identity_hash UNIQUE)
+  - [x] 생년월일/성별 자동 파싱
+  - [x] 수정 불가 필드 처리
+- [x] **인증 시스템**:
+  - [x] VerifyEmailScreen (이메일 인증, 개발 모드)
+  - [x] VerifyPhoneScreen (핸드폰 인증, 개발 모드)
+  - [x] 인증 코드 만료 체크 (이메일 10분, 핸드폰 5분)
+  - [x] 실명 일치 확인
+  - [x] EditProfileScreen에 인증 섹션 추가
+- [x] **뱃지 시스템**:
+  - [x] badges 테이블 생성
+  - [x] 이메일 인증 뱃지
+  - [x] 핸드폰 인증 뱃지
+  - [x] 실존 인증 뱃지 (이메일 + 핸드폰)
+  - [x] 프로필에 뱃지 표시
+- [x] **데이터베이스 마이그레이션**:
+  - [x] supabase-migration-002-identity-fields.sql 생성 및 실행
+  - [x] profiles 테이블에 신원 필드 추가
+  - [x] verifications 테이블 생성
+  - [x] badges 테이블 생성
 
 ### 🔜 v0.5 (예정)
 - [ ] QR 스캔 기능 구현
@@ -462,7 +500,7 @@ npm run android  # Android Studio 필요
 
 ---
 
-## 📊 현재 구현 상태 (v0.3)
+## 📊 현재 구현 상태 (v0.4)
 
 ### 완성된 화면
 1. **HomeScreen** - 피드 (골격)
@@ -473,11 +511,14 @@ npm run android  # Android Studio 필요
 6. **CardDetailScreen** - 명함 상세보기 (연락처, 삭제)
 7. **CardEditorScreen** - 명함 꾸미기 (템플릿, 색상, 공개 필드)
 8. **PassScreen** - 디지털 패스 (QR, 시크릿 코드, 통계)
-9. **VerificationScreen** - 더보기 (골격, 개편 예정)
-10. **EditProfileScreen** - 프로필 편집
-11. **InboxScreen** - 받은편지함 (골격)
-12. **LoginScreen** - 로그인
-13. **RegisterScreen** - 회원가입
+9. **VerificationScreen** - 더보기 (프로필 요약, 메뉴, 로그아웃)
+10. **EditProfileScreen** - 프로필 편집 + 인증 섹션
+11. **VerifyEmailScreen** - 이메일 인증 (개발 모드)
+12. **VerifyPhoneScreen** - 핸드폰 인증 (개발 모드)
+13. **InboxScreen** - 받은편지함 (골격)
+14. **LoginScreen** - 로그인
+15. **SignupScreen** - 회원가입 (실명, 주민번호, 중복 방지)
+16. **WelcomeScreen** - 웰컴 화면
 
 ### 구현된 기능
 - ✅ Supabase Auth 연동
@@ -488,15 +529,21 @@ npm run android  # Android Studio 필요
 - ✅ 카테고리 필터링
 - ✅ 공유 모달
 - ✅ 디지털 패스 (밝기 조절)
+- ✅ 실명 기반 회원가입
+- ✅ 중복 가입 방지 (identity_hash)
+- ✅ 이메일/핸드폰 인증 (개발 모드)
+- ✅ 뱃지 시스템 (이메일, 핸드폰, 실존 인증)
+- ✅ 실명 일치 확인
 
 ### 미구현 기능
 - ⏳ QR 스캔
 - ⏳ 명함 교환 (저장)
-- ⏳ 실명 인증
-- ⏳ 뱃지 시스템
+- ⏳ 실제 이메일/SMS 발송 (SendGrid, Twilio 등)
 - ⏳ 피드 데이터 로딩
 - ⏳ 검색 기능
 - ⏳ 연락 요청
+- ⏳ 플랫폼 OAuth (YouTube, GitHub)
+- ⏳ 문서 인증
 
 ---
 

@@ -54,12 +54,59 @@ export const AuthProvider = ({ children }) => {
   };
 
   // 회원가입
-  const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    return { data, error };
+  const signUp = async (email, password, additionalData = {}) => {
+    try {
+      // 1. Supabase Auth 회원가입
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) return { data: null, error: authError };
+      if (!authData.user) return { data: null, error: { message: '회원가입 실패' } };
+
+      // 2. 프로필 자동 생성 (신원 정보 포함)
+      const handle = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      const shortCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .insert([{
+          user_id: authData.user.id,
+          handle: handle,
+          display_name: additionalData.real_name || handle,
+          email: email,
+          short_code: shortCode,
+          // 신원 정보 (수정 불가)
+          real_name: additionalData.real_name,
+          birth_date: additionalData.birth_date,
+          gender: additionalData.gender,
+          identity_hash: additionalData.identity_hash,
+          phone: additionalData.phone,
+          // 기본 설정
+          categories: additionalData.categories || [],
+          visibility_json: {
+            name: true,
+            headline: true,
+            email: false,
+            phone: false,
+            links: true,
+            bio: true,
+          },
+        }])
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error('프로필 생성 에러:', profileError);
+        return { data: null, error: profileError };
+      }
+
+      return { data: { user: authData.user, profile: profileData }, error: null };
+    } catch (error) {
+      console.error('회원가입 처리 에러:', error);
+      return { data: null, error };
+    }
   };
 
   // 로그인

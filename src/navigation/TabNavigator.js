@@ -70,9 +70,9 @@ export default function TabNavigator() {
         name="Profile"
         component={VerificationScreen}
         options={{
-          title: '프로필',
+          title: '더보기',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="menu-outline" size={size} color={color} />
           ),
         }}
       />

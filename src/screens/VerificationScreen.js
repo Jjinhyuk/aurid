@@ -5,174 +5,170 @@ import { useNavigation } from '@react-navigation/native';
 import colors from '../config/colors';
 
 export default function VerificationScreen() {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigation = useNavigation();
 
-  // 인증 상태 (임시 데이터)
-  const verifications = {
-    email: { verified: true, value: user?.email || '' },
-    phone: { verified: false, value: '' },
-    github: { verified: false, value: '' },
-    youtube: { verified: false, value: '' },
+  // 카테고리 레이블 매핑
+  const categoryLabels = {
+    creator: '크리에이터',
+    developer: '개발자',
+    designer: '디자이너',
+    freelancer: '프리랜서',
+    student: '학생',
+    local_biz: '자영업자',
+    artist: '예술가',
+    writer: '작가',
+    photographer: '사진작가',
+    marketer: '마케터',
+    educator: '교육자',
+    researcher: '연구원',
+    engineer: '엔지니어',
+    medical: '의료인',
+    farmer: '농업인',
+    other: '기타',
   };
 
-  const getVerificationIcon = (verified) => {
-    return verified ? 'checkmark-circle' : 'ellipse-outline';
-  };
+  const primaryCategory = profile?.categories?.[0] || 'other';
+  const categoryLabel = categoryLabels[primaryCategory] || '사용자';
 
-  const getVerificationColor = (verified) => {
-    return verified ? colors.success : colors.textMuted;
-  };
-
-  const trustScore = Object.values(verifications).filter(v => v.verified).length * 25;
+  // 임시 뱃지 데이터 (나중에 Supabase에서 로드)
+  const badges = [
+    { id: 1, type: 'email', verified: true },
+    // 더 많은 뱃지 추가 가능
+  ];
 
   return (
     <ScrollView style={styles.container}>
-      {/* 프로필 편집 버튼 */}
-      <View style={styles.headerActions}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => navigation.navigate('EditProfile')}
-        >
-          <Ionicons name="create-outline" size={20} color={colors.primaryEmphasis} />
-          <Text style={styles.editButtonText}>프로필 편집</Text>
+      {/* 프로필 요약 섹션 */}
+      <View style={styles.profileSection}>
+        {/* 아바타 */}
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {profile?.display_name?.charAt(0) || '?'}
+          </Text>
+        </View>
+
+        {/* 이름 */}
+        <Text style={styles.userName}>{profile?.display_name || '이름 없음'}</Text>
+
+        {/* 뱃지 */}
+        <View style={styles.badgesRow}>
+          {badges.map((badge) => (
+            <View key={badge.id} style={styles.badgeChip}>
+              <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+            </View>
+          ))}
+          {badges.length === 0 && (
+            <Text style={styles.noBadgeText}>인증 완료 시 뱃지가 표시됩니다</Text>
+          )}
+        </View>
+
+        {/* 직업 */}
+        <View style={styles.categoryChip}>
+          <Text style={styles.categoryText}>{categoryLabel}</Text>
+        </View>
+
+        {/* 핸들 */}
+        <Text style={styles.userHandle}>@{profile?.handle || 'user'}</Text>
+      </View>
+
+      {/* 메인 메뉴 (2x2 그리드) */}
+      <View style={styles.mainMenuSection}>
+        <View style={styles.menuGrid}>
+          {/* 프로필 */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('EditProfile')}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="person-outline" size={22} color={colors.primaryEmphasis} />
+            </View>
+            <Text style={styles.menuButtonText}>프로필</Text>
+          </TouchableOpacity>
+
+          {/* 명함함 */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('SavedCards')}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="folder-outline" size={22} color={colors.primaryEmphasis} />
+            </View>
+            <Text style={styles.menuButtonText}>명함함</Text>
+          </TouchableOpacity>
+
+          {/* 증명 사진 */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => {/* TODO: 증명 사진 화면 */}}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="image-outline" size={22} color={colors.primaryEmphasis} />
+            </View>
+            <Text style={styles.menuButtonText}>증명 사진</Text>
+          </TouchableOpacity>
+
+          {/* 설정 */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => {/* TODO: 설정 화면 */}}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="settings-outline" size={22} color={colors.primaryEmphasis} />
+            </View>
+            <Text style={styles.menuButtonText}>설정</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* 구분선 */}
+      <View style={styles.divider} />
+
+      {/* 하단 메뉴 리스트 */}
+      <View style={styles.listMenuSection}>
+        <TouchableOpacity style={styles.listMenuItem}>
+          <View style={styles.listMenuLeft}>
+            <Ionicons name="megaphone-outline" size={22} color={colors.textSecondary} />
+            <Text style={styles.listMenuText}>공지사항</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.listMenuItem}>
+          <View style={styles.listMenuLeft}>
+            <Ionicons name="gift-outline" size={22} color={colors.textSecondary} />
+            <Text style={styles.listMenuText}>이벤트</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.listMenuItem}>
+          <View style={styles.listMenuLeft}>
+            <Ionicons name="help-circle-outline" size={22} color={colors.textSecondary} />
+            <Text style={styles.listMenuText}>고객센터</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.listMenuItem}>
+          <View style={styles.listMenuLeft}>
+            <Ionicons name="information-circle-outline" size={22} color={colors.textSecondary} />
+            <Text style={styles.listMenuText}>앱 정보</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
         </TouchableOpacity>
       </View>
 
-      {/* 신뢰도 점수 */}
-      <View style={styles.scoreSection}>
-        <Text style={styles.scoreTitle}>내 신뢰도</Text>
-        <View style={styles.scoreCircle}>
-          <Text style={styles.scoreNumber}>{trustScore}%</Text>
-        </View>
-        <View style={styles.scoreBar}>
-          <View style={[styles.scoreBarFill, { width: `${trustScore}%` }]} />
-        </View>
-        <Text style={styles.scoreSubtext}>
-          검증 완료: {Object.values(verifications).filter(v => v.verified).length}/4
-        </Text>
+      {/* 로그아웃 버튼 */}
+      <View style={styles.logoutSection}>
+        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+          <Ionicons name="log-out-outline" size={20} color={colors.error} />
+          <Text style={styles.logoutText}>로그아웃</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* 인증 목록 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>인증 현황</Text>
-
-        {/* 이메일 인증 */}
-        <View style={styles.verificationCard}>
-          <View style={styles.cardHeader}>
-            <Ionicons
-              name={getVerificationIcon(verifications.email.verified)}
-              size={28}
-              color={getVerificationColor(verifications.email.verified)}
-            />
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>이메일 인증</Text>
-              {verifications.email.verified ? (
-                <Text style={styles.cardValue}>{verifications.email.value}</Text>
-              ) : (
-                <Text style={styles.cardPending}>인증 대기중</Text>
-              )}
-            </View>
-          </View>
-          {verifications.email.verified && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>실존 검증</Text>
-            </View>
-          )}
-        </View>
-
-        {/* 전화번호 인증 */}
-        <View style={styles.verificationCard}>
-          <View style={styles.cardHeader}>
-            <Ionicons
-              name={getVerificationIcon(verifications.phone.verified)}
-              size={28}
-              color={getVerificationColor(verifications.phone.verified)}
-            />
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>전화번호 인증</Text>
-              {verifications.phone.verified ? (
-                <Text style={styles.cardValue}>{verifications.phone.value}</Text>
-              ) : (
-                <Text style={styles.cardPending}>미인증</Text>
-              )}
-            </View>
-          </View>
-          {!verifications.phone.verified && (
-            <TouchableOpacity style={styles.verifyButton}>
-              <Text style={styles.verifyButtonText}>인증하기</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* GitHub 연동 */}
-        <View style={styles.verificationCard}>
-          <View style={styles.cardHeader}>
-            <Ionicons
-              name={getVerificationIcon(verifications.github.verified)}
-              size={28}
-              color={getVerificationColor(verifications.github.verified)}
-            />
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>GitHub 연동</Text>
-              {verifications.github.verified ? (
-                <Text style={styles.cardValue}>{verifications.github.value}</Text>
-              ) : (
-                <Text style={styles.cardPending}>미연동</Text>
-              )}
-            </View>
-          </View>
-          {!verifications.github.verified && (
-            <TouchableOpacity style={styles.verifyButton}>
-              <Text style={styles.verifyButtonText}>연동하기</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* YouTube 연동 */}
-        <View style={styles.verificationCard}>
-          <View style={styles.cardHeader}>
-            <Ionicons
-              name={getVerificationIcon(verifications.youtube.verified)}
-              size={28}
-              color={getVerificationColor(verifications.youtube.verified)}
-            />
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardTitle}>YouTube 연동</Text>
-              {verifications.youtube.verified ? (
-                <Text style={styles.cardValue}>{verifications.youtube.value}</Text>
-              ) : (
-                <Text style={styles.cardPending}>미연동</Text>
-              )}
-            </View>
-          </View>
-          {!verifications.youtube.verified && (
-            <TouchableOpacity style={styles.verifyButton}>
-              <Text style={styles.verifyButtonText}>연동하기</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* 추천받음 */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>추천 (Endorse)</Text>
-        <View style={styles.emptyState}>
-          <Ionicons name="people-outline" size={48} color={colors.textMuted} />
-          <Text style={styles.emptyText}>아직 받은 추천이 없습니다</Text>
-          <Text style={styles.emptySubtext}>
-            다른 사용자가 당신의 프로필을 추천하면 여기에 표시됩니다
-          </Text>
-        </View>
-      </View>
-
-      {/* 안내 */}
-      <View style={styles.infoBox}>
-        <Ionicons name="information-circle-outline" size={20} color={colors.primaryEmphasis} />
-        <Text style={styles.infoText}>
-          검증이 많을수록 신뢰도가 높아지고, 다른 사용자에게 더 신뢰받는 프로필이 됩니다.
-        </Text>
-      </View>
+      {/* 하단 여백 */}
+      <View style={styles.bottomSpacer} />
     </ScrollView>
   );
 }
@@ -182,175 +178,150 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  headerActions: {
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 15,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: colors.primaryLight,
-    borderRadius: 20,
-    gap: 6,
-  },
-  editButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.primaryEmphasis,
-  },
-  scoreSection: {
+  // 프로필 섹션
+  profileSection: {
     backgroundColor: colors.surface,
     padding: 30,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  scoreTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 20,
-  },
-  scoreCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 8,
-    borderColor: colors.primaryEmphasis,
+    marginBottom: 15,
   },
-  scoreNumber: {
+  avatarText: {
     fontSize: 36,
     fontWeight: 'bold',
     color: colors.primaryEmphasis,
   },
-  scoreBar: {
-    width: '100%',
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: 4,
-    overflow: 'hidden',
+  userName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
     marginBottom: 10,
   },
-  scoreBarFill: {
-    height: '100%',
-    backgroundColor: colors.primaryEmphasis,
-  },
-  scoreSubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  section: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 15,
-  },
-  verificationCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cardHeader: {
+  badgesRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
+  },
+  badgeChip: {
+    backgroundColor: colors.successLight,
+    borderRadius: 12,
+    padding: 4,
+  },
+  noBadgeText: {
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  categoryChip: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
     marginBottom: 8,
   },
-  cardInfo: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  cardValue: {
+  categoryText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    fontWeight: '600',
+    color: colors.primaryEmphasis,
   },
-  cardPending: {
+  userHandle: {
     fontSize: 14,
     color: colors.textMuted,
   },
-  badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.successLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 8,
+  // 메인 메뉴 섹션
+  mainMenuSection: {
+    padding: 20,
+    backgroundColor: colors.surface,
   },
-  badgeText: {
-    fontSize: 12,
-    color: colors.success,
-    fontWeight: '600',
+  menuGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  verifyButton: {
-    backgroundColor: colors.primaryEmphasis,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    marginTop: 8,
-  },
-  verifyButtonText: {
-    color: colors.textInverse,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: 40,
+  menuButton: {
+    flex: 1,
+    aspectRatio: 0.85,
     backgroundColor: colors.surface,
     borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.border,
-    borderStyle: 'dashed',
+    gap: 8,
   },
-  emptyText: {
-    fontSize: 16,
+  menuIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuButtonText: {
+    fontSize: 12,
     fontWeight: '600',
     color: colors.text,
-    marginTop: 16,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 20,
   },
-  infoBox: {
+  // 구분선
+  divider: {
+    height: 8,
+    backgroundColor: colors.background,
+  },
+  // 리스트 메뉴 섹션
+  listMenuSection: {
+    backgroundColor: colors.surface,
+    paddingVertical: 10,
+  },
+  listMenuItem: {
     flexDirection: 'row',
-    backgroundColor: colors.primaryLight,
-    padding: 16,
-    margin: 20,
-    borderRadius: 12,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginLeft: 12,
-    lineHeight: 20,
+  listMenuLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  listMenuText: {
+    fontSize: 16,
+    color: colors.text,
+  },
+  // 로그아웃 섹션
+  logoutSection: {
+    padding: 20,
+    backgroundColor: colors.surface,
+    marginTop: 10,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: colors.errorLight,
+    borderRadius: 12,
+    gap: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.error,
+  },
+  bottomSpacer: {
+    height: 40,
   },
 });

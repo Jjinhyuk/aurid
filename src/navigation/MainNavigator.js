@@ -6,6 +6,8 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import MyCardScreen from '../screens/MyCardScreen';
 import SavedCardsScreen from '../screens/SavedCardsScreen';
 import CardDetailScreen from '../screens/CardDetailScreen';
+import VerifyEmailScreen from '../screens/VerifyEmailScreen';
+import VerifyPhoneScreen from '../screens/VerifyPhoneScreen';
 import colors from '../config/colors';
 
 const Stack = createStackNavigator();
@@ -92,6 +94,22 @@ export default function MainNavigator() {
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="VerifyEmail"
+        component={VerifyEmailScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="VerifyPhone"
+        component={VerifyPhoneScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

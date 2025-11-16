@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,27 @@ export default function EditProfileScreen({ navigation }) {
   const [link2, setLink2] = useState(profile?.links?.[1] || '');
   const [link3, setLink3] = useState(profile?.links?.[2] || '');
   const [loading, setLoading] = useState(false);
+  const [verifications, setVerifications] = useState([]);
+
+  // Load verifications
+  useEffect(() => {
+    loadVerifications();
+  }, [profile?.id]);
+
+  const loadVerifications = async () => {
+    if (!profile?.id) return;
+
+    const { data, error } = await supabase
+      .from('verifications')
+      .select('*')
+      .eq('profile_id', profile.id)
+      .eq('status', 'verified')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setVerifications(data);
+    }
+  };
 
   const handleSave = async () => {
     if (!displayName.trim()) {
@@ -120,6 +141,78 @@ export default function EditProfileScreen({ navigation }) {
             />
             <Text style={styles.charCount}>{headline.length}/100</Text>
           </View>
+        </View>
+
+        {/* 신원 인증 */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>신원 인증</Text>
+          <Text style={styles.sectionSubtitle}>
+            이메일과 핸드폰 인증을 완료하면 신뢰도를 높일 수 있습니다
+          </Text>
+
+          {/* 이메일 인증 */}
+          <TouchableOpacity
+            style={styles.verificationItem}
+            onPress={() => navigation.navigate('VerifyEmail')}
+          >
+            <View style={styles.verificationLeft}>
+              <View style={[
+                styles.verificationIcon,
+                verifications.some(v => v.kind === 'email') && styles.verificationIconVerified
+              ]}>
+                <Ionicons
+                  name="mail"
+                  size={20}
+                  color={verifications.some(v => v.kind === 'email') ? colors.surface : colors.primaryEmphasis}
+                />
+              </View>
+              <View style={styles.verificationInfo}>
+                <Text style={styles.verificationTitle}>이메일 인증</Text>
+                <Text style={styles.verificationSubtitle}>
+                  {verifications.some(v => v.kind === 'email')
+                    ? '인증 완료'
+                    : '미인증'}
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name={verifications.some(v => v.kind === 'email') ? 'checkmark-circle' : 'chevron-forward'}
+              size={24}
+              color={verifications.some(v => v.kind === 'email') ? colors.success : colors.textMuted}
+            />
+          </TouchableOpacity>
+
+          {/* 핸드폰 인증 */}
+          <TouchableOpacity
+            style={styles.verificationItem}
+            onPress={() => navigation.navigate('VerifyPhone')}
+          >
+            <View style={styles.verificationLeft}>
+              <View style={[
+                styles.verificationIcon,
+                verifications.some(v => v.kind === 'phone') && styles.verificationIconVerified
+              ]}>
+                <Ionicons
+                  name="call"
+                  size={20}
+                  color={verifications.some(v => v.kind === 'phone') ? colors.surface : colors.success}
+                />
+              </View>
+              <View style={styles.verificationInfo}>
+                <Text style={styles.verificationTitle}>핸드폰 인증</Text>
+                <Text style={styles.verificationSubtitle}>
+                  {verifications.some(v => v.kind === 'phone')
+                    ? '인증 완료'
+                    : '미인증'}
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name={verifications.some(v => v.kind === 'phone') ? 'checkmark-circle' : 'chevron-forward'}
+              size={24}
+              color={verifications.some(v => v.kind === 'phone') ? colors.success : colors.textMuted}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* 연락 정보 */}
@@ -321,5 +414,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,
+  },
+  verificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  verificationLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  verificationIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  verificationIconVerified: {
+    backgroundColor: colors.success,
+  },
+  verificationInfo: {
+    gap: 2,
+  },
+  verificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  verificationSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
   },
 });
